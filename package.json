@@ -3,8 +3,10 @@
   "version": "0.0.1",
   "description": "Tree Sitter grammar for Idris 2",
   "main": "bindings/node",
+  "gypfile": false,
   "scripts": {
-    "test": "tree-sitter test"
+    "build": "node-gyp rebuild",
+    "test": "node scripts/test.js"
   },
   "keywords": [
     "parser",
