@@ -1,0 +1,32 @@
+==============================
+module, import, and declarations
+==============================
+module Example.Main
+
+import Data.String
+
+greet : String -> String
+greet = "hello"
+---
+(module
+  (declaration
+    (module_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (import_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (string)))))

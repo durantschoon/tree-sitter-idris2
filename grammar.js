@@ -16,25 +16,60 @@ const asciiControlAbbrevs = [
 module.exports = grammar({
   name: 'idris2',
 
+  extras: $ => [ /\s/ ],
+
   rules: {
-    // module: $ => repeat(choice($._text, $._number)),
-    module: $ => repeat($.statement),
-    statement: $ => $.expression,
-    expression: $ => choice($._text, $._number),
+    module: $ => repeat($.declaration),
+
+    declaration: $ => choice(
+      $.module_declaration,
+      $.import_declaration,
+      $.type_signature,
+      $.function_definition
+    ),
+
+    // Top-level declarations in the initial corpus baseline.
+    module_declaration: $ => seq(
+      'module',
+      field('name', $.module_name)
+    ),
+
+    import_declaration: $ => seq(
+      'import',
+      field('name', $.module_name)
+    ),
+
+    type_signature: $ => seq(
+      field('name', $.identifier),
+      ':',
+      field('type', $.type)
+    ),
+
+    function_definition: $ => seq(
+      field('name', $.identifier),
+      '=',
+      field('body', $.expression)
+    ),
+
+    module_name: $ => seq(
+      $.identifier,
+      repeat(seq('.', $.identifier))
+    ),
+
+    type: $ => seq(
+      $._type_atom,
+      repeat(seq('->', $._type_atom))
+    ),
+
+    _type_atom: $ => $.identifier,
+
+    expression: $ => choice($._text, $._number, $.identifier),
 
     // Identifiers
 
-    // TODO: Unicode
-    _identifierHeadLower: $ => /a-z/,
-    _identifierHeadUpper: $ => /A-Z/,
-    // _identifierHead: $ => choice('_', $._identifierHeadUpper, $._identifierHeadLower),
-    // _identifierRest: $ => choice('-', '_', '\\', /[A-Za-z]/, /[^\x00-\x9F]/),
-    // _identifierRest: $ => choice('-', '_', '\\', /[A-Za-z]/),
-    _identifierRest: $ => choice('_', '\\', /[A-Za-z]/),
-    _identifierUpper: $ => seq($._identifierHeadUpper, repeat($._identifierRest)),
-    _identifierLower: $ => seq($._identifierHeadLower, repeat($._identifierRest)),
-    identifier: $ => choice($._identifierUpper, $._identifierLower),
-    identifierDotted: $ => seq($.identifier, repeat(seq('.', $.identifier))),
+    // Idris 2 permits apostrophes in names. Unicode and operator names remain
+    // outside this small baseline and are tracked in docs/syntax-inventory.md.
+    identifier: $ => /[A-Za-z_][A-Za-z0-9_']*/,
 
     // Numeric literals
 
@@ -93,13 +128,6 @@ module.exports = grammar({
 
     _text: $ => choice($.char, $.string),
 
-    // Function application
-
-    // Comments
-    // _lineCommentLeader: $ => '--',
-    // lineComment: $ => prec(0, seq($._lineCommentLeader, /.*$/))
-    // _lineCommentLeader: $ => '--',
-    // lineComment: $ => prec(0, seq('--', /.*\n?/))
   }
 
 });
