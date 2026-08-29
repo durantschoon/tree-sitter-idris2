@@ -53,11 +53,21 @@ stage-specific checks listed in its prompt.
 
 - Stage prompts land on the default branch before launch, reserving the number
   and making the text canonical.
+- Create executor worktrees under `.worktrees/stage-NN/` inside the primary
+  checkout; do not place them beside the repository where sandbox permissions
+  may prevent cleanup.
+- Remember that Git also updates `.git/worktrees` when adding or removing a
+  worktree. In a managed environment, request targeted permission for that
+  Git operation if the metadata is protected; do not treat the permission
+  error as a reason to leave the worktree behind.
 - At most one in-flight stage touches a shared registration file.
 - Executors attempt their own push and expect credential failure; the
   coordinator pushes and merges.
 - Review is diff inspection plus independent gate reruns, never report-reading
   alone.
+- After a successful merge or abandon, run
+  `scripts/cleanup-stage-worktree.sh stage-NN` and verify `git worktree list`
+  before recording the stage complete. Cleanup must never use a force option.
 - Run the deterministic retro before every fifth stage.
 - Forecasts are sealed before launch and resolved only after merge or abandon.
 
