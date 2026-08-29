@@ -1,0 +1,42 @@
+====================
+dependent binders
+====================
+id : (a : Type) -> a -> a
+id = ?implementation
+
+const : {a : Type} -> a -> a
+const = ?implementation
+---
+(module
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (explicit_binder
+          name: (identifier)
+          type: (type
+            (identifier)))
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (hole
+          name: (identifier)))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (implicit_binder
+          name: (identifier)
+          type: (type
+            (identifier)))
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (hole
+          name: (identifier))))))

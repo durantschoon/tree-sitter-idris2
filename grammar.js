@@ -16,7 +16,12 @@ const asciiControlAbbrevs = [
 module.exports = grammar({
   name: 'idris2',
 
-  extras: $ => [ /\s/ ],
+  extras: $ => [
+    /\s/,
+    $.doc_comment,
+    $.line_comment,
+    $.block_comment,
+  ],
 
   rules: {
     module: $ => repeat($.declaration),
@@ -56,14 +61,84 @@ module.exports = grammar({
       repeat(seq('.', $.identifier))
     ),
 
-    type: $ => seq(
+    type: $ => prec.right(seq(
       $._type_atom,
       repeat(seq('->', $._type_atom))
+    )),
+
+    _type_atom: $ => choice(
+      $.explicit_binder,
+      $.implicit_binder,
+      $.qualified_name,
+      $.identifier,
+      $.hole,
     ),
 
-    _type_atom: $ => $.identifier,
+    explicit_binder: $ => seq(
+      '(',
+      field('name', $.identifier),
+      ':',
+      optional(field('type', $.type)),
+      ')',
+    ),
 
-    expression: $ => choice($._text, $._number, $.identifier),
+    implicit_binder: $ => seq(
+      '{',
+      field('name', $.identifier),
+      ':',
+      optional(field('type', $.type)),
+      '}',
+    ),
+
+    expression: $ => choice($.application, $._expression_atom),
+
+    application: $ => prec.left(1, seq(
+      field('function', $._expression_atom),
+      repeat1(seq(
+        token.immediate(/[ \t]+/),
+        field('argument', $._expression_atom),
+      )),
+    )),
+
+    _expression_atom: $ => choice(
+      $.parenthesized_expression,
+      $.qualified_name,
+      $.hole,
+      $._text,
+      $._number,
+      $.identifier,
+    ),
+
+    parenthesized_expression: $ => seq('(', $.expression, ')'),
+
+    qualified_name: $ => seq(
+      $.identifier,
+      repeat1(seq('.', $.identifier)),
+    ),
+
+    hole: $ => choice(
+      '_',
+      seq('?', field('name', $.identifier)),
+    ),
+
+    // Comments are named extras so line, block, and documentation comments
+    // remain distinguishable without affecting declaration parsing.
+    doc_comment: $ => token(choice(
+      seq('|||', /[^\r\n]*/),
+      seq(
+        '{-|',
+        repeat(choice(/[^-]/, seq('-', /[^}]/))),
+        '-}',
+      ),
+    )),
+
+    line_comment: $ => token(seq('--', /[^\r\n]*/)),
+
+    block_comment: $ => token(seq(
+      '{-',
+      repeat(choice(/[^-]/, seq('-', /[^}]/))),
+      '-}',
+    )),
 
     // Identifiers
 
@@ -86,7 +161,7 @@ module.exports = grammar({
     ),
 
     // https://github.com/idris-lang/Idris2/blob/03f23b0/src/Parser/Lexer/Source.idr#L178-L181=
-    double: $ => /[0-9]+\.[0-9]+(?:[eE][-+]?[0-9]+)/,
+    double: $ => /[0-9]+\.[0-9]+(?:[eE][-+]?[0-9]+)?/,
 
     _number: $ => choice($.integer, $.double),
 

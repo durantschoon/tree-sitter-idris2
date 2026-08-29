@@ -1,0 +1,19 @@
+====================
+incomplete binders
+====================
+partial : (a : )
+partialImplicit : {a : }
+---
+(module
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (explicit_binder
+          name: (identifier)))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (implicit_binder
+          name: (identifier))))))

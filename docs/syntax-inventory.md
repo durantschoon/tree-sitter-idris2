@@ -1,7 +1,7 @@
 # Idris 2 syntax inventory
 
-Status: Stage 01 baseline. This is an inventory for the first recoverable
-grammar slice, not a claim of complete Idris 2 coverage.
+Status: Stage 02 baseline. This is an inventory for the recoverable grammar
+slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
 
@@ -35,7 +35,7 @@ grammar slice, not a claim of complete Idris 2 coverage.
 
 ## Initial scope
 
-The Stage 01 corpus establishes four top-level constructs:
+The corpus establishes the following supported constructs:
 
 | Source construct | Stable node | Shape |
 | --- | --- | --- |
@@ -43,35 +43,51 @@ The Stage 01 corpus establishes four top-level constructs:
 | `import Foo.Bar` | `import_declaration` | named `module_name` |
 | `name : A -> B` | `type_signature` | named `name` and `type` |
 | `name = expression` | `function_definition` | named `name` and `body` |
+| `f x 42` | `application` | named `function` and repeated `argument` |
+| `Data.String.toUpper` | `qualified_name` | ordered `identifier` segments |
+| `_`, `?hole` | `hole` | optional named `name` for named holes |
+| `(a : Type) -> a` | `explicit_binder` | named `name` and `type` |
+| `{a : Type} -> a` | `implicit_binder` | named `name` and `type` |
+| `--`, `{- -}`, `|||`, `{-| -}` | comment extras | named `line_comment`, `block_comment`, or `doc_comment` |
 
 The source-file root remains `module` for compatibility with the inherited
 grammar. `module_name` contains one or more `identifier` nodes separated by
-`.`. The initial expression and type atoms are identifiers, numbers, and
-strings as needed by the fixture; the function body is deliberately not a
-general expression grammar yet.
+`.` and is intentionally separate from expression `qualified_name`. The
+expression grammar now recognizes applications whose arguments are separated
+by horizontal whitespace, so a newline still separates neighboring
+declarations without adding Idris layout semantics. Application atoms include
+identifiers, qualified names, holes, numbers, chars, strings, and parenthesized
+expressions. Types retain the Stage 01 `type` node and now accept explicit and
+implicit dependent binders as type atoms.
 
 ## Naming convention
 
 Named nodes describe syntactic relationships (`module_declaration`,
 `import_declaration`, `type_signature`, `function_definition`, `module_name`,
-`type`, and `expression`). Lexical names use `identifier`, `integer`, `double`,
-`char`, and `string`. Structural children that exist only to factor the
-grammar are hidden with a leading underscore. Declaration names, module names,
-types, and bodies use fields so downstream consumers do not depend on child
-position.
+`type`, `expression`, `application`, `qualified_name`, `hole`,
+`explicit_binder`, and `implicit_binder`). Lexical names use `identifier`,
+`integer`, `double`, `char`, and `string`; comments use named extras. Structural
+children that exist only to factor the grammar are hidden with a leading
+underscore. Declaration names, module names, types, bodies, application
+functions/arguments, and binder names/types use fields so downstream consumers
+do not depend on child position. The repeated `argument` field preserves the
+source order of flat applications.
 
 ## Known gaps and follow-up
 
 - Unicode identifiers and the full Idris 2 operator-name rules are not in this
   baseline; current lexer sources show that ASCII-only matching is incomplete.
-- Comments, documentation comments, pragmas, holes, raw/multiline strings,
-  interpolation, and layout-sensitive `where`/`do` blocks need dedicated
-  grammar and corpus work.
+- Pragmas, raw/multiline strings, interpolation, and layout-sensitive
+  `where`/`do` blocks need dedicated grammar and corpus work. Comments are
+  recognized as named extras, but nested block-comment semantics remain a
+  follow-up.
 - Declaration families such as `data`, records, interfaces, implementations,
   namespaces, parameters, mutual blocks, visibility modifiers, and fixity
   declarations remain unsupported.
-- Expressions currently do not cover applications, literals beyond the
-  inherited forms, operators, pattern matching, or dependent binders.
+- Expressions currently do not cover operators, pattern matching, lambdas,
+  named function parameters, or general infix/application precedence. The
+  dependent binder slice supports one identifier per binder and does not yet
+  cover binder lists or more elaborate binder forms.
 - The repository remains on the pinned `tree-sitter-cli` `0.20.6`; generated
   parser sources are synchronized with that CLI. A future tooling stage should
   evaluate an upgrade together with runtime/binding compatibility.

@@ -1,0 +1,86 @@
+============================
+comments and applications
+============================
+||| Documentation comment
+module Comments.Applications
+
+-- ordinary line comment
+{- block comment -}
+{-| documentation block -}
+
+apply : String -> String
+apply = id "hello"
+
+qualified : String -> String
+qualified = Data.String.toUpper "hello"
+
+holey : String
+holey = ?missing
+
+numbers : String
+numbers = show 42 3.14 'x'
+---
+(module
+  (doc_comment)
+  (declaration
+    (module_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (line_comment)
+  (block_comment)
+  (doc_comment)
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (application
+          function: (identifier)
+          argument: (string)))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (application
+          function: (qualified_name
+            (identifier)
+            (identifier)
+            (identifier))
+          argument: (string)))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (hole
+          name: (identifier)))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (application
+          function: (identifier)
+          argument: (integer)
+          argument: (double)
+          argument: (char))))))

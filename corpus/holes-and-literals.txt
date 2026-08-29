@@ -1,0 +1,29 @@
+====================
+holes and literals
+====================
+wildcard = _
+named = ?missing
+literal = show 42 3.14 'x' "text"
+---
+(module
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (hole))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (hole
+          name: (identifier)))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (application
+          function: (identifier)
+          argument: (integer)
+          argument: (double)
+          argument: (char)
+          argument: (string))))))
