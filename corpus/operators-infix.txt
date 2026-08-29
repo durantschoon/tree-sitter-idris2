@@ -1,0 +1,143 @@
+================================================================================
+operators and infix
+================================================================================
+(+) : Int -> Int -> Int
+
+data Nat : Type where
+  (::) : Nat -> Nat -> Nat
+
+sum : Int -> Int -> Int
+sum = 1 + 2
+
+qualified : Int
+qualified = Data.Num.one + Math.two
+
+prefix : Int
+prefix = (+) 1 2
+
+nested : Int
+nested = (a + b) * c
+
+chain : Int
+chain = a + b * c
+
+incomplete : Int
+incomplete = value +
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (type_signature
+      name: (operator_name
+        operator: (operator))
+      type: (type
+        (identifier)
+        (identifier)
+        (identifier))))
+  (declaration
+    (data_declaration
+      name: (identifier)
+      type: (type
+        (identifier))
+      constructor: (constructor_declaration
+        name: (constructor_name
+          (operator_name
+            operator: (operator)))
+        type: (type
+          (identifier)
+          (identifier)
+          (identifier)))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier)
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (infix_expression
+          left: (integer)
+          operator: (operator)
+          right: (integer)))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (infix_expression
+          left: (qualified_name
+            (identifier)
+            (identifier)
+            (identifier))
+          operator: (operator)
+          right: (qualified_name
+            (identifier)
+            (identifier))))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (application
+          function: (operator_name
+            operator: (operator))
+          argument: (integer)
+          argument: (integer)))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (infix_expression
+          left: (parenthesized_expression
+            (expression
+              (infix_expression
+                left: (identifier)
+                operator: (operator)
+                right: (identifier))))
+          operator: (operator)
+          right: (identifier)))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (infix_expression
+          left: (infix_expression
+            left: (identifier)
+            operator: (operator)
+            right: (identifier))
+          operator: (operator)
+          right: (identifier)))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (infix_expression
+          left: (identifier)
+          operator: (operator)
+          right: (MISSING identifier))))))

@@ -71,13 +71,13 @@ module.exports = grammar({
     ),
 
     type_signature: $ => seq(
-      field('name', $.identifier),
+      field('name', choice($.identifier, $.operator_name)),
       ':',
       field('type', $.type)
     ),
 
     function_definition: $ => seq(
-      field('name', $.identifier),
+      field('name', choice($.identifier, $.operator_name)),
       '=',
       field('body', $.expression)
     ),
@@ -118,15 +118,26 @@ module.exports = grammar({
       '}',
     ),
 
-    expression: $ => choice($.application, $._expression_atom),
+    expression: $ => choice($.infix_expression, $._expression_term),
 
-    application: $ => prec.left(1, seq(
-      field('function', $._expression_atom),
+    application: $ => prec.left(2, seq(
+      field('function', choice($._expression_atom, $.operator_name)),
       repeat1(seq(
         token.immediate(/[ \t]+/),
         field('argument', $._expression_atom),
       )),
     )),
+
+    // Fixity declarations are intentionally out of scope. All supported
+    // infix operators therefore share one left-associative precedence, while
+    // application binds more tightly and parentheses can group expressions.
+    infix_expression: $ => prec.left(1, seq(
+      field('left', choice($.infix_expression, $._expression_term)),
+      field('operator', $._infix_operator),
+      field('right', $._expression_term),
+    )),
+
+    _expression_term: $ => choice($.application, $._expression_atom),
 
     _expression_atom: $ => choice(
       $.parenthesized_expression,
@@ -144,7 +155,25 @@ module.exports = grammar({
       repeat1(seq('.', $.identifier)),
     ),
 
-    constructor_name: $ => $.identifier,
+    constructor_name: $ => seq(choice($.identifier, $.operator_name)),
+
+    operator_name: $ => seq(
+      '(',
+      field('operator', $.operator),
+      ')',
+    ),
+
+    // Idris 2 lexes an operator as a run of symbol characters. Keep this
+    // bounded to ASCII and give punctuation literals higher lexical priority
+    // so existing declaration and type separators remain unchanged.
+    operator: $ => token(prec(-1, /[!#$%&*+,\-\/:;<=>?@\\^|~]+/)),
+
+    // Consume same-line spacing with the infix operator so an application
+    // separator cannot steal the whitespace before a symbolic operator.
+    _infix_operator: $ => alias(
+      token.immediate(prec(1, /[ \t]+[!#$%&*+,\-\/:;<=>?@\\^|~]+/)),
+      $.operator,
+    ),
 
     hole: $ => choice(
       '_',
@@ -172,8 +201,8 @@ module.exports = grammar({
 
     // Identifiers
 
-    // Idris 2 permits apostrophes in names. Unicode and operator names remain
-    // outside this small baseline and are tracked in docs/syntax-inventory.md.
+    // Idris 2 permits apostrophes in names. Unicode identifiers and Unicode
+    // operator characters remain outside this bounded slice.
     identifier: $ => /[A-Za-z_][A-Za-z0-9_']*/,
 
     // Numeric literals

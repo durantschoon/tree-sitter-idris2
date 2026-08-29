@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 03 baseline. This is an inventory for the recoverable grammar
+Status: Stage 04 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -54,6 +54,11 @@ The corpus establishes the following supported constructs:
 | `{a : Type} -> a` | `implicit_binder` | named `name` and `type` |
 | `{a, b : Type} -> a` | `implicit_binder` | repeated `name` fields, shared `type` |
 | `--`, `{- -}`, `|||`, `{-| -}` | comment extras | named `line_comment`, `block_comment`, or `doc_comment` |
+| `(+) : Int -> Int -> Int` | `operator_name` | parenthesized symbolic name with `operator` child |
+| `(::) : Nat -> Nat -> Nat` | `constructor_name` | constructor wrapper preserves the operator name |
+| `a + b` | `infix_expression` | named `left`, `operator`, and `right` fields |
+| `Data.Num.one + Math.two` | `infix_expression` | qualified operands retain `qualified_name` nodes |
+| `(a + b) * c` | nested `infix_expression` | generic operators are left-associative; parentheses group explicitly |
 
 The source-file root remains `module` for compatibility with the inherited
 grammar. `module_name` contains one or more `identifier` nodes separated by
@@ -63,7 +68,15 @@ by horizontal whitespace, so a newline still separates neighboring
 declarations without adding Idris layout semantics. Application atoms include
 identifiers, qualified names, holes, numbers, chars, strings, and parenthesized
 expressions. Types retain the Stage 01 `type` node and now accept explicit and
-implicit dependent binders as type atoms.
+implicit dependent binders as type atoms. Stage 04 adds an `operator` node for
+ASCII symbolic runs and an `operator_name` node for parenthesized declaration
+or expression names. Infix expressions use an `infix_expression` node with
+`left`, `operator`, and `right` fields; the current syntax-only policy treats
+all operators as one left-associative precedence, with application binding
+tighter and parentheses providing explicit grouping. A hidden lexical rule
+consumes same-line spacing before an infix operator so it cannot be mistaken
+for an application argument separator; the public field remains the stable
+`operator` node.
 
 ## Naming convention
 
@@ -71,7 +84,8 @@ Named nodes describe syntactic relationships (`module_declaration`,
 `import_declaration`, `type_signature`, `function_definition`, `module_name`,
 `type`, `expression`, `application`, `qualified_name`, `hole`,
 `explicit_binder`, `implicit_binder`, `data_declaration`,
-`constructor_declaration`, and `constructor_name`). Lexical names use `identifier`,
+`constructor_declaration`, `constructor_name`, `operator_name`, and
+`infix_expression`). Lexical names use `identifier`,
 `integer`, `double`, `char`, and `string`; comments use named extras. Structural
 children that exist only to factor the grammar are hidden with a leading
 underscore. Declaration names, module names, data names, constructor names,
@@ -95,12 +109,13 @@ declaration.
 - Records, interfaces, implementations, namespaces, parameters, mutual blocks,
   visibility modifiers, and fixity declarations remain unsupported. Data
   declarations are supported only in the delimiter-based `where` form covered
-  by the Stage 03 corpus; full layout semantics and constructor operator names
-  remain gaps.
-- Expressions currently do not cover operators, pattern matching, lambdas,
-  named function parameters, or general infix/application precedence. Binder
-  lists support comma-separated identifiers with one shared optional type; more
-  elaborate binder forms remain unsupported.
+  by the Stage 03 corpus; full layout semantics remain a gap. Operator names
+  are currently limited to ASCII symbolic runs and parenthesized forms.
+- Expressions currently do not cover pattern matching, lambdas, named function
+  parameters, or fixity-dependent precedence. Infix operators use one generic
+  left-associative precedence in this stage. Binder lists support
+  comma-separated identifiers with one shared optional type; more elaborate
+  binder forms remain unsupported.
 - The repository remains on the pinned `tree-sitter-cli` `0.20.6`; generated
   parser sources are synchronized with that CLI. A future tooling stage should
   evaluate an upgrade together with runtime/binding compatibility.
