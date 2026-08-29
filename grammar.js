@@ -25,6 +25,13 @@ module.exports = grammar({
     $.block_comment,
   ],
 
+  conflicts: $ => [
+    [$.pattern, $.parenthesized_pattern],
+    [$.pattern, $.constructor_application_pattern],
+    [$.case_expression, $.infix_expression],
+    [$.case_alternative, $.infix_expression],
+  ],
+
   rules: {
     module: $ => repeat($.declaration),
 
@@ -125,6 +132,8 @@ module.exports = grammar({
 
     expression: $ => choice(
       $.lambda_expression,
+      $.case_expression,
+      $._incomplete_case_expression,
       $.infix_expression,
       $._expression_term,
     ),
@@ -177,6 +186,83 @@ module.exports = grammar({
     ),
 
     parenthesized_expression: $ => seq('(', $.expression, ')'),
+
+    // This stage deliberately uses explicit bars as case separators. Layout
+    // and branch forms that need an external scanner remain out of scope.
+    case_expression: $ => prec(3, prec.right(seq(
+      $._case,
+      field('scrutinee', $.expression),
+      $._case_of,
+      field('alternative', $.case_alternative),
+      repeat(seq(
+        $._case_bar,
+        field('alternative', $.case_alternative),
+      )),
+    ))),
+
+    case_alternative: $ => prec.right(10, seq(
+      field('pattern', choice(
+        $.pattern,
+        $.constructor_application_pattern,
+      )),
+      $._case_arrow,
+      field('body', alias($._case_body_expression, $.expression)),
+    )),
+
+    // Keep one bounded recovery alternative for an incomplete branch. Cases
+    // missing the `of` delimiter are deferred until layout-aware recovery is
+    // designed; they must not be accepted as complete case expressions.
+    _incomplete_case_expression: $ => prec.right(-1, seq(
+      $._case,
+      field('scrutinee', $.expression),
+      $._case_of,
+      field('alternative', $._incomplete_case_alternative),
+    )),
+
+    _incomplete_case_alternative: $ => prec.right(seq(
+      field('pattern', choice(
+        $.pattern,
+        $.constructor_application_pattern,
+      )),
+      $._case_arrow,
+      optional(field('body', alias($._case_body_expression, $.expression))),
+    )),
+
+    // Case alternatives stop at a literal `|`. Keep a local expression layer
+    // for their bodies so the general infix rule can continue to support `|`
+    // as an operator everywhere outside a case branch.
+    _case_body_expression: $ => choice(
+      $.lambda_expression,
+      $.case_expression,
+      $._case_infix_expression,
+      $.application,
+      $._expression_atom,
+    ),
+
+    _case_infix_expression: $ => prec.left(1, seq(
+      field('left', choice(
+        $._case_infix_expression,
+        $.application,
+        $._expression_atom,
+      )),
+      field('operator', $._case_infix_operator),
+      field('right', choice($.application, $._expression_atom)),
+    )),
+
+    _case_infix_operator: $ => alias(
+      token.immediate(prec(1, /[ \t]+[!#$%&*+,\-\/:;<=>?@\\^~]+/)),
+      $.operator,
+    ),
+
+    // `of` is a reserved delimiter here. Consume the preceding same-line
+    // spacing with the delimiter so the general application rule cannot steal
+    // it as an argument named `of`.
+    _case: $ => token(prec(10, 'case')),
+    _case_of: $ => token.immediate(prec(10, /[ \t]+of/)),
+
+    _case_arrow: $ => token.immediate(prec(10, /[ \t]*=>/)),
+
+    _case_bar: $ => token.immediate(prec(20, /[ \t]*\|/)),
 
     pattern: $ => choice(
       $.parenthesized_pattern,

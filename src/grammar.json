@@ -486,6 +486,14 @@
         },
         {
           "type": "SYMBOL",
+          "name": "case_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_incomplete_case_expression"
+        },
+        {
+          "type": "SYMBOL",
           "name": "infix_expression"
         },
         {
@@ -722,6 +730,330 @@
           "value": ")"
         }
       ]
+    },
+    "case_expression": {
+      "type": "PREC",
+      "value": 3,
+      "content": {
+        "type": "PREC_RIGHT",
+        "value": 0,
+        "content": {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_case"
+            },
+            {
+              "type": "FIELD",
+              "name": "scrutinee",
+              "content": {
+                "type": "SYMBOL",
+                "name": "expression"
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_case_of"
+            },
+            {
+              "type": "FIELD",
+              "name": "alternative",
+              "content": {
+                "type": "SYMBOL",
+                "name": "case_alternative"
+              }
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "_case_bar"
+                  },
+                  {
+                    "type": "FIELD",
+                    "name": "alternative",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "case_alternative"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "case_alternative": {
+      "type": "PREC_RIGHT",
+      "value": 10,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "pattern",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "pattern"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "constructor_application_pattern"
+                }
+              ]
+            }
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_case_arrow"
+          },
+          {
+            "type": "FIELD",
+            "name": "body",
+            "content": {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_case_body_expression"
+              },
+              "named": true,
+              "value": "expression"
+            }
+          }
+        ]
+      }
+    },
+    "_incomplete_case_expression": {
+      "type": "PREC_RIGHT",
+      "value": -1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "_case"
+          },
+          {
+            "type": "FIELD",
+            "name": "scrutinee",
+            "content": {
+              "type": "SYMBOL",
+              "name": "expression"
+            }
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_case_of"
+          },
+          {
+            "type": "FIELD",
+            "name": "alternative",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_incomplete_case_alternative"
+            }
+          }
+        ]
+      }
+    },
+    "_incomplete_case_alternative": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "pattern",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "pattern"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "constructor_application_pattern"
+                }
+              ]
+            }
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_case_arrow"
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "body",
+                "content": {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_case_body_expression"
+                  },
+                  "named": true,
+                  "value": "expression"
+                }
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "_case_body_expression": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "lambda_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "case_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_case_infix_expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "application"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_expression_atom"
+        }
+      ]
+    },
+    "_case_infix_expression": {
+      "type": "PREC_LEFT",
+      "value": 1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "left",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_case_infix_expression"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "application"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "_expression_atom"
+                }
+              ]
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "operator",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_case_infix_operator"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "right",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "application"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "_expression_atom"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "_case_infix_operator": {
+      "type": "ALIAS",
+      "content": {
+        "type": "IMMEDIATE_TOKEN",
+        "content": {
+          "type": "PREC",
+          "value": 1,
+          "content": {
+            "type": "PATTERN",
+            "value": "[ \\t]+[!#$%&*+,\\-\\/:;<=>?@\\\\^~]+"
+          }
+        }
+      },
+      "named": true,
+      "value": "operator"
+    },
+    "_case": {
+      "type": "TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 10,
+        "content": {
+          "type": "STRING",
+          "value": "case"
+        }
+      }
+    },
+    "_case_of": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 10,
+        "content": {
+          "type": "PATTERN",
+          "value": "[ \\t]+of"
+        }
+      }
+    },
+    "_case_arrow": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 10,
+        "content": {
+          "type": "PATTERN",
+          "value": "[ \\t]*=>"
+        }
+      }
+    },
+    "_case_bar": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 20,
+        "content": {
+          "type": "PATTERN",
+          "value": "[ \\t]*\\|"
+        }
+      }
     },
     "pattern": {
       "type": "CHOICE",
@@ -1409,7 +1741,24 @@
       "name": "block_comment"
     }
   ],
-  "conflicts": [],
+  "conflicts": [
+    [
+      "pattern",
+      "parenthesized_pattern"
+    ],
+    [
+      "pattern",
+      "constructor_application_pattern"
+    ],
+    [
+      "case_expression",
+      "infix_expression"
+    ],
+    [
+      "case_alternative",
+      "infix_expression"
+    ]
+  ],
   "precedences": [],
   "externals": [],
   "inline": [],

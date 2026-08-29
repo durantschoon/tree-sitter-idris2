@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 05 baseline. This is an inventory for the recoverable grammar
+Status: Stage 06 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -68,6 +68,9 @@ The corpus establishes the following supported constructs:
 | `a + b` | `infix_expression` | named `left`, `operator`, and `right` fields |
 | `Data.Num.one + Math.two` | `infix_expression` | qualified operands retain `qualified_name` nodes |
 | `(a + b) * c` | nested `infix_expression` | generic operators are left-associative; parentheses group explicitly |
+| `case value of Just x => x` | `case_expression` | named `scrutinee` and repeated `alternative` fields |
+| `case value of Just x => x | _ => 0` | `case_expression` | `case_alternative` children with named `pattern` and `body` fields |
+| `case x of 0 => 1 | _ => 2` | `case_expression` | literal and hole patterns reuse the existing `pattern` node |
 
 The source-file root remains `module` for compatibility with the inherited
 grammar. `module_name` contains one or more `identifier` nodes separated by
@@ -96,6 +99,14 @@ contain a capitalized constructor application, whose stable
 `argument` fields. This capitalized, parenthesized boundary is a deliberate
 syntax-only compatibility slice: it keeps `f x y` as two parameters and avoids
 introducing layout state or constructor resolution.
+Stage 06 adds delimiter-based `case_expression` nodes with a named `scrutinee`
+field and repeated `alternative` fields. Each `case_alternative` has named
+`pattern` and `body` fields; constructor applications reuse the existing
+`constructor_application_pattern` node. A case body uses the existing
+expression/infix/application shapes while reserving explicit `|` separators
+inside the case. A bounded hidden recovery rule preserves the surrounding
+function/lambda tree for an incomplete branch such as `case value of Just x
+=>`; missing `of` and layout-separated alternatives remain deferred.
 
 ## Naming convention
 
@@ -104,8 +115,9 @@ Named nodes describe syntactic relationships (`module_declaration`,
 `type`, `expression`, `application`, `qualified_name`, `hole`,
 `explicit_binder`, `implicit_binder`, `data_declaration`,
 `constructor_declaration`, `constructor_name`, `operator_name`,
-`infix_expression`, `lambda_expression`, `pattern`, `parenthesized_pattern`,
-and `constructor_application_pattern`. Lexical names use `identifier`,
+`infix_expression`, `lambda_expression`, `case_expression`,
+`case_alternative`, `pattern`, `parenthesized_pattern`, and
+`constructor_application_pattern`. Lexical names use `identifier`,
 `integer`, `double`, `char`, and `string`; comments use named extras. Structural
 children that exist only to factor the grammar are hidden with a leading
 underscore. Declaration names, module names, data names, constructor names,
@@ -131,12 +143,14 @@ declaration.
   declarations are supported only in the delimiter-based `where` form covered
   by the Stage 03 corpus; full layout semantics remain a gap. Operator names
   are currently limited to ASCII symbolic runs and parenthesized forms.
-- Expressions still do not cover pattern matching, `case`, `with`, or
+- Expressions now cover the bounded delimiter-based `case` form described
+  above, but do not cover `with`, layout-separated alternatives, or
   fixity-dependent precedence. Stage 05 supports lambdas and named function
-  patterns only in the bounded forms above; unparenthesized constructor
-  applications, lower-case constructor spellings, pattern alternatives, and
-  pattern guards remain gaps. Infix operators use one generic left-associative
-  precedence in this stage. Binder lists support
+  patterns only in the bounded forms above; bare constructor patterns without
+  arguments, unparenthesized constructor applications outside case
+  alternatives, lower-case constructor spellings, and pattern guards remain
+  gaps. Infix operators use one generic left-associative precedence in this
+  stage. Binder lists support
   comma-separated identifiers with one shared optional type; more elaborate
   binder forms remain unsupported.
 - The repository remains on the pinned `tree-sitter-cli` `0.20.6`; generated

@@ -1,0 +1,23 @@
+================================================================================
+incomplete case expressions
+================================================================================
+module Stage06.IncompleteCase
+
+incompleteBranch = case value of Just x =>
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (module_declaration
+      (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      (identifier)
+      (expression
+        (expression
+          (identifier))
+        (constructor_application_pattern
+          (identifier)
+          (identifier))))))
