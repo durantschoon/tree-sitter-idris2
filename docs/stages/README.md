@@ -92,3 +92,15 @@ The first contract is Stage 01, covering M0's syntax inventory, tooling
 baseline, and initial corpus fixture. Later contracts should decompose M1–M4
 into disjoint allow-lists so branches can proceed concurrently when their
 files do not contend.
+
+## Coarse route
+
+1. Stages 01–08: recover the syntax baseline through expressions, patterns,
+   case alternatives, and explicit `impossible` branches.
+2. Stage 09: establish the smallest truthful brace/semicolon/layout-aware case
+   alternative slice, or record the concrete scanner/state blocker.
+3. Later M1 stages: add bounded `with`/dependent-pattern and declaration
+   families only after their source shapes and registration-file contention are
+   understood.
+4. M2–M4 stages: cover literate source and editor robustness, release/CI
+   hygiene, real-repository validation, and the later Graphify integration.
