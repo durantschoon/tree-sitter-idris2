@@ -16,6 +16,8 @@ const asciiControlAbbrevs = [
 module.exports = grammar({
   name: 'idris2',
 
+  word: $ => $.identifier,
+
   extras: $ => [
     /\s/,
     $.doc_comment,
@@ -27,11 +29,35 @@ module.exports = grammar({
     module: $ => repeat($.declaration),
 
     declaration: $ => choice(
+      $.data_declaration,
       $.module_declaration,
       $.import_declaration,
       $.type_signature,
       $.function_definition
     ),
+
+    data_declaration: $ => seq(
+      'data',
+      field('name', $.identifier),
+      field('parameters', repeat(choice(
+        $.explicit_binder,
+        $.implicit_binder,
+      ))),
+      ':',
+      field('type', $.type),
+      'where',
+      field('constructor', $.constructor_declaration),
+      repeat(seq(
+        '|',
+        field('constructor', $.constructor_declaration),
+      )),
+    ),
+
+    constructor_declaration: $ => prec.right(seq(
+      field('name', $.constructor_name),
+      ':',
+      optional(field('type', $.type)),
+    )),
 
     // Top-level declarations in the initial corpus baseline.
     module_declaration: $ => seq(
@@ -77,6 +103,7 @@ module.exports = grammar({
     explicit_binder: $ => seq(
       '(',
       field('name', $.identifier),
+      repeat(seq(',', field('name', $.identifier))),
       ':',
       optional(field('type', $.type)),
       ')',
@@ -85,6 +112,7 @@ module.exports = grammar({
     implicit_binder: $ => seq(
       '{',
       field('name', $.identifier),
+      repeat(seq(',', field('name', $.identifier))),
       ':',
       optional(field('type', $.type)),
       '}',
@@ -115,6 +143,8 @@ module.exports = grammar({
       $.identifier,
       repeat1(seq('.', $.identifier)),
     ),
+
+    constructor_name: $ => $.identifier,
 
     hole: $ => choice(
       '_',

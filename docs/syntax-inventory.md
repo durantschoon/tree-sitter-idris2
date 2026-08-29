@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 02 baseline. This is an inventory for the recoverable grammar
+Status: Stage 03 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -43,11 +43,16 @@ The corpus establishes the following supported constructs:
 | `import Foo.Bar` | `import_declaration` | named `module_name` |
 | `name : A -> B` | `type_signature` | named `name` and `type` |
 | `name = expression` | `function_definition` | named `name` and `body` |
+| `data Bool : Type where ...` | `data_declaration` | named `name`, repeated `constructor`, and `type` |
+| `data Maybe (a : Type) : Type where ...` | `data_declaration` | repeated `parameters` preserve explicit/implicit binder nodes |
+| `False : Bool` in a data declaration | `constructor_declaration` | named `name` (`constructor_name`) and optional `type` |
 | `f x 42` | `application` | named `function` and repeated `argument` |
 | `Data.String.toUpper` | `qualified_name` | ordered `identifier` segments |
 | `_`, `?hole` | `hole` | optional named `name` for named holes |
 | `(a : Type) -> a` | `explicit_binder` | named `name` and `type` |
+| `(a, b : Type) -> a` | `explicit_binder` | repeated `name` fields, shared `type` |
 | `{a : Type} -> a` | `implicit_binder` | named `name` and `type` |
+| `{a, b : Type} -> a` | `implicit_binder` | repeated `name` fields, shared `type` |
 | `--`, `{- -}`, `|||`, `{-| -}` | comment extras | named `line_comment`, `block_comment`, or `doc_comment` |
 
 The source-file root remains `module` for compatibility with the inherited
@@ -65,13 +70,19 @@ implicit dependent binders as type atoms.
 Named nodes describe syntactic relationships (`module_declaration`,
 `import_declaration`, `type_signature`, `function_definition`, `module_name`,
 `type`, `expression`, `application`, `qualified_name`, `hole`,
-`explicit_binder`, and `implicit_binder`). Lexical names use `identifier`,
+`explicit_binder`, `implicit_binder`, `data_declaration`,
+`constructor_declaration`, and `constructor_name`). Lexical names use `identifier`,
 `integer`, `double`, `char`, and `string`; comments use named extras. Structural
 children that exist only to factor the grammar are hidden with a leading
-underscore. Declaration names, module names, types, bodies, application
-functions/arguments, and binder names/types use fields so downstream consumers
-do not depend on child position. The repeated `argument` field preserves the
-source order of flat applications.
+underscore. Declaration names, module names, data names, constructor names,
+types, bodies, application functions/arguments, data parameters, constructor
+alternatives, and binder names/types use fields so downstream consumers do not
+depend on child position. The repeated `argument`, `parameters`, and
+`constructor` fields preserve source order. A singleton binder retains the Stage
+02 tree shape; additional comma-separated names add repeated `name` fields to
+that same binder node and share its one type field. Constructors are represented
+syntactically; their result types are not inferred from the enclosing data
+declaration.
 
 ## Known gaps and follow-up
 
@@ -81,13 +92,15 @@ source order of flat applications.
   `where`/`do` blocks need dedicated grammar and corpus work. Comments are
   recognized as named extras, but nested block-comment semantics remain a
   follow-up.
-- Declaration families such as `data`, records, interfaces, implementations,
-  namespaces, parameters, mutual blocks, visibility modifiers, and fixity
-  declarations remain unsupported.
+- Records, interfaces, implementations, namespaces, parameters, mutual blocks,
+  visibility modifiers, and fixity declarations remain unsupported. Data
+  declarations are supported only in the delimiter-based `where` form covered
+  by the Stage 03 corpus; full layout semantics and constructor operator names
+  remain gaps.
 - Expressions currently do not cover operators, pattern matching, lambdas,
-  named function parameters, or general infix/application precedence. The
-  dependent binder slice supports one identifier per binder and does not yet
-  cover binder lists or more elaborate binder forms.
+  named function parameters, or general infix/application precedence. Binder
+  lists support comma-separated identifiers with one shared optional type; more
+  elaborate binder forms remain unsupported.
 - The repository remains on the pinned `tree-sitter-cli` `0.20.6`; generated
   parser sources are synchronized with that CLI. A future tooling stage should
   evaluate an upgrade together with runtime/binding compatibility.

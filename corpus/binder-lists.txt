@@ -1,0 +1,32 @@
+================================================================================
+binder lists
+================================================================================
+id : (a, b : Type) -> a -> b -> a
+idImplicit : {a, b : Type} -> a -> b -> a
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (explicit_binder
+          name: (identifier)
+          name: (identifier)
+          type: (type
+            (identifier)))
+        (identifier)
+        (identifier)
+        (identifier))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (implicit_binder
+          name: (identifier)
+          name: (identifier)
+          type: (type
+            (identifier)))
+        (identifier)
+        (identifier)
+        (identifier)))))

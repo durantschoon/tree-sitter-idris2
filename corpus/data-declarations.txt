@@ -1,0 +1,47 @@
+=================
+data declarations
+=================
+data Bool : Type where
+  False : Bool
+| True : Bool
+
+data Maybe (a : Type) : Type where
+Nothing : Maybe
+| Just : a -> Maybe
+---
+(module
+  (declaration
+    (data_declaration
+      name: (identifier)
+      type: (type
+        (identifier))
+      constructor: (constructor_declaration
+        name: (constructor_name
+          (identifier))
+        type: (type
+          (identifier)))
+      constructor: (constructor_declaration
+        name: (constructor_name
+          (identifier))
+        type: (type
+          (identifier)))))
+  (declaration
+    (data_declaration
+      name: (identifier)
+      parameters: (explicit_binder
+        name: (identifier)
+        type: (type
+          (identifier)))
+      type: (type
+        (identifier))
+      constructor: (constructor_declaration
+        name: (constructor_name
+          (identifier))
+        type: (type
+          (identifier)))
+      constructor: (constructor_declaration
+        name: (constructor_name
+          (identifier))
+        type: (type
+          (identifier)
+          (identifier))))))

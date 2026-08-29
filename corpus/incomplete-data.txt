@@ -1,0 +1,20 @@
+=========================
+incomplete data declaration
+=========================
+data Pending (a, b : Type) : Type where
+  Pending :
+---
+(module
+  (declaration
+    (data_declaration
+      name: (identifier)
+      parameters: (explicit_binder
+        name: (identifier)
+        name: (identifier)
+        type: (type
+          (identifier)))
+      type: (type
+        (identifier))
+      constructor: (constructor_declaration
+        name: (constructor_name
+          (identifier))))))
