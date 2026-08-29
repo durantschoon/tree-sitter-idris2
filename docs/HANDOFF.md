@@ -16,15 +16,16 @@ Develop this repository into a maintained Idris 2 Tree-sitter grammar and use it
   - `docs/GRAPHIFY_INTEGRATION.md`
   - `docs/DECISIONS.md`
   - this file
-- Stages 01–09 extended the recoverable grammar through declarations, comments,
+- Stages 01–10 extended the recoverable grammar through declarations, comments,
   applications, dependent binders, lambdas, pattern clauses, case expressions,
   bare/applied constructor patterns, impossible branches, and explicit
-  brace/semicolon case alternatives. Each stage report and resolved forecast is
+  brace/semicolon case alternatives, then a bounded explicit one-view
+  brace/semicolon `with` form. Each stage report and resolved forecast is
   committed on `master`.
-- Stage 09's executor worktree was cleaned up after merge. The primary checkout
-  is clean on `master`; the local branch is three commits ahead of
-  `origin/master` because the reviewed Stage 09 implementation, reservation,
-  and forecast-resolution commits have not yet been pushed.
+- Stage 10's executor worktree was cleaned up after merge. The primary checkout
+  is clean on `master`; the local branch is seven commits ahead of
+  `origin/master`. The reviewed Stage 10 executor branch is preserved on
+  `origin/stage-10-executor`.
 
 ## Durable decisions
 
@@ -41,38 +42,39 @@ See `docs/DECISIONS.md` for the full rationale.
 
 The repository contains:
 
-- `grammar.js` with the bounded Stage 09 syntax slice;
+- `grammar.js` with the bounded Stage 10 syntax slice;
 - generated parser sources under `src/`, synchronized with Tree-sitter CLI
   `0.20.6`;
 - Node and Rust bindings;
 - `package.json` and `package-lock.json`;
 - focused corpus fixtures under `corpus/` for all supported stages;
 - `docs/syntax-inventory.md` documenting stable nodes and known gaps;
+- `docs/stages/stage-10-REPORT.md` and the resolved Stage 10 forecast;
 - no highlighting queries or Python binding yet.
 
-The current known gaps include layout-separated alternatives, `with` clauses,
-guards, richer dependent patterns, declaration families beyond the current
-data slice, literate source, and fixity-aware precedence.
+The current known gaps include layout-separated `with` clauses and case
+alternatives, multiple views, nested with blocks, guards, richer dependent
+patterns, declaration families beyond the current data slice, literate source,
+and fixity-aware precedence.
 
 ## Next concrete action
 
-Continue the staged M1 pipeline with Stage 10: inspect the current Idris 2
-`with` rule and its block/separator behavior, then implement only a bounded
-explicit brace/semicolon form if it can be represented truthfully without
-indentation state. Otherwise record the concrete blocker and defer it. Keep
-Graphify changes out of scope.
+Continue the staged M1 pipeline with Stage 11: author a bounded contract for
+the next `with` decision, prioritizing layout/scanner support versus multiple
+views and richer dependent branches. Keep Graphify changes out of scope.
 
 ## Verification status
 
-- Stage 09 generation, focused debug tests, metadata inspection, full corpus
-  tests, and `git diff --check` passed; see
-  `docs/stages/stage-09-REPORT.md` for exact commands.
+- Stage 10 generation, focused debug tests, metadata inspection, full 20-fixture
+  corpus tests, and `git diff --check` passed; see
+  `docs/stages/stage-10-REPORT.md` for exact commands.
 - The literal global-cache `npm test` remedy remains blocked by managed cache
   permissions; the documented x86_64 wrapper with a writable temporary HOME
   passed the full suite.
-- `git worktree list` contains only the primary checkout after Stage 09
+- `git worktree list` contains only the primary checkout after Stage 10
   cleanup.
-- No push has been performed from this resumed session.
+- The Stage 10 executor branch was pushed for review history; `master` remains
+  local and ahead of `origin/master` with the reviewed stage commits.
 
 ## External dependencies
 
