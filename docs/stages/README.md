@@ -80,6 +80,11 @@ stage-specific checks listed in its prompt.
   before recording the stage complete. Cleanup must never use a force option.
 - Run the deterministic retro before every fifth stage.
 - Forecasts are sealed before launch and resolved only after merge or abandon.
+- Stage-05 retro (2026-08-29): calibration across the available ledger shows
+  20–40% forecasts are over-stated (31% stated versus 21% empirical), while
+  13 unmodeled pivots were `overlooked`; lower mid-range anchors and add an
+  explicit source/inventory/corpus scouting pass before bounding the branch
+  tree.
 
 ## Pipeline route
 
