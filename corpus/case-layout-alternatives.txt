@@ -1,0 +1,120 @@
+=================================
+brace and semicolon case alternatives
+=================================
+module Stage09.LayoutCases
+
+braced = case value of { Just x => x; Nothing => 0 }
+bracedTrailing = case value of { Nothing impossible; Just x => x; }
+bracedFunction x = case x of { Nothing impossible; Just y => y }
+bracedNested = case outer of { Just x => case x of { Nothing impossible; Just y => y }; _ => 0 }
+bracedInfix = case value of { Just x => x + 1; _ => 0 }
+
+---
+
+(module
+  (declaration
+    (module_declaration
+      (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      (identifier)
+      (expression
+        (case_expression
+          (expression
+            (identifier))
+          (case_alternative
+            (constructor_application_pattern
+              (identifier)
+              (identifier))
+            (expression
+              (identifier)))
+          (case_alternative
+            (constructor_pattern
+              (identifier))
+            (expression
+              (integer)))))))
+  (declaration
+    (function_definition
+      (identifier)
+      (expression
+        (case_expression
+          (expression
+            (identifier))
+          (impossible_case_alternative
+            (constructor_pattern
+              (identifier)))
+          (case_alternative
+            (constructor_application_pattern
+              (identifier)
+              (identifier))
+            (expression
+              (identifier)))))))
+  (declaration
+    (function_definition
+      (identifier)
+      (pattern
+        (identifier))
+      (expression
+        (case_expression
+          (expression
+            (identifier))
+          (impossible_case_alternative
+            (constructor_pattern
+              (identifier)))
+          (case_alternative
+            (constructor_application_pattern
+              (identifier)
+              (identifier))
+            (expression
+              (identifier)))))))
+  (declaration
+    (function_definition
+      (identifier)
+      (expression
+        (case_expression
+          (expression
+            (identifier))
+          (case_alternative
+            (constructor_application_pattern
+              (identifier)
+              (identifier))
+            (expression
+              (case_expression
+                (expression
+                  (identifier))
+                (impossible_case_alternative
+                  (constructor_pattern
+                    (identifier)))
+                (case_alternative
+                  (constructor_application_pattern
+                    (identifier)
+                    (identifier))
+                  (expression
+                    (identifier))))))
+          (case_alternative
+            (pattern
+              (hole))
+            (expression
+              (integer)))))))
+  (declaration
+    (function_definition
+      (identifier)
+      (expression
+        (case_expression
+          (expression
+            (identifier))
+          (case_alternative
+            (constructor_application_pattern
+              (identifier)
+              (identifier))
+            (expression
+              (identifier)
+              (operator)
+              (integer)))
+          (case_alternative
+            (pattern
+              (hole))
+            (expression
+              (integer))))))))

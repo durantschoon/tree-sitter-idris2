@@ -1,0 +1,34 @@
+====================================
+incomplete brace case alternatives
+====================================
+module Stage09.IncompleteLayout
+
+missingClose = case value of { Just x => x; _ => 0
+
+---
+
+(module
+  (declaration
+    (module_declaration
+      (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      (identifier)
+      (expression
+        (case_expression
+          (expression
+            (identifier))
+          (case_alternative
+            (constructor_application_pattern
+              (identifier)
+              (identifier))
+            (expression
+              (identifier)))
+          (case_alternative
+            (pattern
+              (hole))
+            (expression
+              (integer)))
+          (MISSING _case_close))))))

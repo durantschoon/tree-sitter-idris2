@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 07 baseline. This is an inventory for the recoverable grammar
+Status: Stage 09 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -20,6 +20,15 @@ slice, not a claim of complete Idris 2 coverage.
   parser history records the case-branch spelling as `(pattern) impossible`
   before the next alternative:
   <https://github.com/idris-lang/Idris-dev/blob/master/CHANGELOG.md#L693-L698>.
+- `Parser.Lexer.Source` lists `;` as a symbol, includes `{` in its grouped
+  symbols, maps `{` to `}`, and removes `Space` tokens before parsing. This
+  establishes that braces and semicolons are lexical delimiters, while a
+  newline is not itself a retained separator:
+  <https://github.com/idris-lang/Idris2/blob/main/src/Parser/Lexer/Source.idr>.
+- `Parser.Rule.Source` implements brace blocks with `blockEntries AnyIndent`
+  and `symbol "}"`, consumes `symbol ";"` as a block terminator, and uses
+  `column`/`ValidIndent` for indentation-delimited blocks:
+  <https://github.com/idris-lang/Idris2/blob/main/src/Parser/Rule/Source.idr>.
 - The inherited grammar cites the 2022 parser snapshot at commit `03f23b0`,
   including `Libraries.Text.Lexer` and `Prelude.Types`; those references are
   retained in `grammar.js` as historical lexer provenance.
@@ -77,6 +86,7 @@ The corpus establishes the following supported constructs:
 | `case x of 0 => 1 | _ => 2` | `case_expression` | literal and hole patterns reuse the existing `pattern` node |
 | `case value of Nothing => 0 | Just x => x` | `case_expression` | bare constructors use `constructor_pattern`; applied constructors use `constructor_application_pattern` |
 | `case value of Nothing impossible | Just x => x` | `case_expression` | `impossible_case_alternative` has a named `pattern` and intentionally no `body` |
+| `case value of { Nothing impossible; Just x => x }` | `case_expression` | brace-delimited alternatives use semicolon separators and retain the same ordinary/impossible branch contracts |
 
 The source-file root remains `module` for compatibility with the inherited
 grammar. `module_name` contains one or more `identifier` nodes separated by
@@ -136,6 +146,21 @@ upstream language history records the case spelling as a pattern followed by
 `impossible` (see the linked source references above and the Idris-dev parser
 example).
 
+Stage 09 adds the bounded, source-evidenced braced form
+`case scrutinee of { alternative ; alternative ; }`. The braces and
+semicolons are anonymous structural delimiters, so the public tree remains a
+`case_expression` with named `scrutinee` and repeated `alternative` fields;
+ordinary alternatives retain required `pattern` and `body`, while impossible
+alternatives retain required `pattern` and no `body`. The form supports mixed
+ordinary/impossible branches, nested case expressions, function bodies, and a
+trailing semicolon. The grammar consumes same-line spacing before `}` to avoid
+confusing it with the existing application separator. Explicit-bar cases and
+generic infix operators remain supported. The implementation does not accept
+indentation-separated alternatives: the upstream parser's `column` and
+`ValidIndent` state cannot be represented by this grammar without an external
+scanner or indentation state. Newline-only separation, `with`, and guards
+remain gaps.
+
 ## Naming convention
 
 Named nodes describe syntactic relationships (`module_declaration`,
@@ -171,19 +196,20 @@ declaration.
   declarations are supported only in the delimiter-based `where` form covered
   by the Stage 03 corpus; full layout semantics remain a gap. Operator names
   are currently limited to ASCII symbolic runs and parenthesized forms.
-- Expressions now cover the bounded delimiter-based `case` form described
-  above, but do not cover `with`, layout-separated alternatives, or
+- Expressions now cover the bounded explicit-bar and brace/semicolon `case`
+  forms described above, but do not cover `with`, layout-separated alternatives,
+  or
   fixity-dependent precedence. Stage 05 supports lambdas and named function
   patterns only in the bounded forms above; bare constructor patterns are
   supported only through the case-specific constructor entry point,
   unparenthesized constructor applications outside case alternatives,
   lower-case constructor spellings, and pattern guards remain gaps. Idris 2
-  `impossible_case_alternative` covers only `pattern impossible` with explicit
-  bars; layout-separated alternatives, semicolon/braced forms, and guard-like
-  dependent pattern forms need a separate syntax contract. Infix operators use
-  one generic left-associative precedence in this stage. Binder lists support
-  comma-separated identifiers with one shared optional type; more elaborate
-  binder forms remain unsupported.
+  `impossible_case_alternative` covers `pattern impossible` with explicit bars
+  or the bounded brace/semicolon form; indentation-separated alternatives and
+  guard-like dependent pattern forms need a separate syntax contract. Infix
+  operators use one generic left-associative precedence in this stage. Binder
+  lists support comma-separated identifiers with one shared optional type; more
+  elaborate binder forms remain unsupported.
 - The repository remains on the pinned `tree-sitter-cli` `0.20.6`; generated
   parser sources are synchronized with that CLI. A future tooling stage should
   evaluate an upgrade together with runtime/binding compatibility.

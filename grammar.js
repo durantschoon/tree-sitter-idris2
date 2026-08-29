@@ -189,26 +189,46 @@ module.exports = grammar({
 
     parenthesized_expression: $ => seq('(', $.expression, ')'),
 
-    // This stage deliberately uses explicit bars as case separators. Layout
-    // and branch forms that need an external scanner remain out of scope.
+    // Keep both source-evidenced explicit-bar and brace/semicolon forms
+    // bounded to separators that Tree-sitter can represent without layout
+    // state. Indentation-separated alternatives remain out of scope.
     case_expression: $ => prec(3, prec.right(seq(
       $._case,
       field('scrutinee', $.expression),
       $._case_of,
-      field('alternative', choice(
-        $.case_alternative,
-        $.impossible_case_alternative,
-      )),
-      repeat(seq(
-        $._case_bar,
-        field('alternative', choice(
-          $.case_alternative,
-          $.impossible_case_alternative,
-        )),
-      )),
-      optional($._case_bar),
+      choice(
+        seq(
+          $._case_open,
+          field('alternative', choice(
+            $.case_alternative,
+            $.impossible_case_alternative,
+          )),
+          repeat(seq(
+            $._case_semicolon,
+            field('alternative', choice(
+              $.case_alternative,
+              $.impossible_case_alternative,
+            )),
+          )),
+          optional($._case_semicolon),
+          $._case_close,
+        ),
+        seq(
+          field('alternative', choice(
+            $.case_alternative,
+            $.impossible_case_alternative,
+          )),
+          repeat(seq(
+            $._case_bar,
+            field('alternative', choice(
+              $.case_alternative,
+              $.impossible_case_alternative,
+            )),
+          )),
+          optional($._case_bar),
+        ),
+      ),
     ))),
-
     case_alternative: $ => prec.right(10, seq(
       field('pattern', choice(
         $.constructor_application_pattern,
@@ -226,11 +246,31 @@ module.exports = grammar({
       $._case,
       field('scrutinee', $.expression),
       $._case_of,
-      field('alternative', choice(
-        $._incomplete_case_alternative,
-        $._incomplete_impossible_case_alternative,
-      )),
-      optional($._case_bar),
+      choice(
+        seq(
+          $._case_open,
+          field('alternative', choice(
+            $._incomplete_case_alternative,
+            $._incomplete_impossible_case_alternative,
+          )),
+          optional(seq(
+            optional($._case_semicolon),
+            field('alternative', choice(
+              $._incomplete_case_alternative,
+              $._incomplete_impossible_case_alternative,
+            )),
+          )),
+          optional($._case_semicolon),
+          optional($._case_close),
+        ),
+        seq(
+          field('alternative', choice(
+            $._incomplete_case_alternative,
+            $._incomplete_impossible_case_alternative,
+          )),
+          optional($._case_bar),
+        ),
+      ),
     )),
 
     _incomplete_case_alternative: $ => prec.right(seq(
@@ -263,9 +303,9 @@ module.exports = grammar({
       $._case_impossible,
     )),
 
-    // Case alternatives stop at a literal `|`. Keep a local expression layer
-    // for their bodies so the general infix rule can continue to support `|`
-    // as an operator everywhere outside a case branch.
+    // Case alternatives stop at literal separators. Keep a local expression
+    // layer so the general infix rule can continue to support generic
+    // operators everywhere outside a case branch.
     _case_body_expression: $ => choice(
       $.lambda_expression,
       $.case_expression,
@@ -285,7 +325,7 @@ module.exports = grammar({
     )),
 
     _case_infix_operator: $ => alias(
-      token.immediate(prec(1, /[ \t]+[!#$%&*+,\-\/:;<=>?@\\^~]+/)),
+      token.immediate(prec(1, /[ \t]+[!#$%&*+,\-\/:<=>?@\\^~]+/)),
       $.operator,
     ),
 
@@ -294,6 +334,11 @@ module.exports = grammar({
     // it as an argument named `of`.
     _case: $ => token(prec(10, 'case')),
     _case_of: $ => token.immediate(prec(10, /[ \t]+of/)),
+    _case_open: $ => '{',
+    // Consume whitespace here so the application rule cannot mistake
+    // same-line spacing for another argument before the closing delimiter.
+    _case_close: $ => token.immediate(prec(20, /[ \t]*\}/)),
+    _case_semicolon: $ => ';',
 
     _case_arrow: $ => token.immediate(prec(10, /[ \t]*=>/)),
 

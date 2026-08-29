@@ -398,7 +398,7 @@
         ]
       },
       "body": {
-        "multiple": false,
+        "multiple": true,
         "required": false,
         "types": [
           {
@@ -464,7 +464,7 @@
         ]
       },
       "pattern": {
-        "multiple": false,
+        "multiple": true,
         "required": false,
         "types": [
           {
