@@ -802,11 +802,15 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "pattern"
+                  "name": "constructor_application_pattern"
                 },
                 {
                   "type": "SYMBOL",
-                  "name": "constructor_application_pattern"
+                  "name": "constructor_pattern"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "pattern"
                 }
               ]
             }
@@ -878,11 +882,15 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "pattern"
+                  "name": "constructor_application_pattern"
                 },
                 {
                   "type": "SYMBOL",
-                  "name": "constructor_application_pattern"
+                  "name": "constructor_pattern"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "pattern"
                 }
               ]
             }
@@ -1079,6 +1087,10 @@
           "name": "identifier"
         }
       ]
+    },
+    "constructor_pattern": {
+      "type": "SYMBOL",
+      "name": "_pattern_constructor"
     },
     "parenthesized_pattern": {
       "type": "SEQ",
@@ -1748,6 +1760,10 @@
     ],
     [
       "pattern",
+      "constructor_application_pattern"
+    ],
+    [
+      "constructor_pattern",
       "constructor_application_pattern"
     ],
     [

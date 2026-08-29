@@ -28,6 +28,7 @@ module.exports = grammar({
   conflicts: $ => [
     [$.pattern, $.parenthesized_pattern],
     [$.pattern, $.constructor_application_pattern],
+    [$.constructor_pattern, $.constructor_application_pattern],
     [$.case_expression, $.infix_expression],
     [$.case_alternative, $.infix_expression],
   ],
@@ -202,8 +203,9 @@ module.exports = grammar({
 
     case_alternative: $ => prec.right(10, seq(
       field('pattern', choice(
-        $.pattern,
         $.constructor_application_pattern,
+        $.constructor_pattern,
+        $.pattern,
       )),
       $._case_arrow,
       field('body', alias($._case_body_expression, $.expression)),
@@ -221,8 +223,9 @@ module.exports = grammar({
 
     _incomplete_case_alternative: $ => prec.right(seq(
       field('pattern', choice(
-        $.pattern,
         $.constructor_application_pattern,
+        $.constructor_pattern,
+        $.pattern,
       )),
       $._case_arrow,
       optional(field('body', alias($._case_body_expression, $.expression))),
@@ -271,6 +274,12 @@ module.exports = grammar({
       $._text,
       $.identifier,
     ),
+
+    // A capitalised constructor without arguments is distinct from a bound
+    // lower-case pattern variable. Keep this case-only entry point separate
+    // so ordinary function-clause parameters retain their existing pattern
+    // shape and application compatibility.
+    constructor_pattern: $ => $._pattern_constructor,
 
     parenthesized_pattern: $ => seq(
       '(',

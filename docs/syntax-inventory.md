@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 06 baseline. This is an inventory for the recoverable grammar
+Status: Stage 07 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -71,6 +71,7 @@ The corpus establishes the following supported constructs:
 | `case value of Just x => x` | `case_expression` | named `scrutinee` and repeated `alternative` fields |
 | `case value of Just x => x | _ => 0` | `case_expression` | `case_alternative` children with named `pattern` and `body` fields |
 | `case x of 0 => 1 | _ => 2` | `case_expression` | literal and hole patterns reuse the existing `pattern` node |
+| `case value of Nothing => 0 | Just x => x` | `case_expression` | bare constructors use `constructor_pattern`; applied constructors use `constructor_application_pattern` |
 
 The source-file root remains `module` for compatibility with the inherited
 grammar. `module_name` contains one or more `identifier` nodes separated by
@@ -107,6 +108,15 @@ expression/infix/application shapes while reserving explicit `|` separators
 inside the case. A bounded hidden recovery rule preserves the surrounding
 function/lambda tree for an incomplete branch such as `case value of Just x
 =>`; missing `of` and layout-separated alternatives remain deferred.
+Stage 07 adds a case-only `constructor_pattern` node for bare capitalized
+constructors such as `Nothing`. Unparenthesized applied constructors such as
+`Just x` were already supported by the Stage 06 case-alternative grammar and
+now have explicit regression coverage alongside bare constructors. The new
+case-only entry point keeps ordinary function-clause parameters compatible:
+lower-case identifiers remain `pattern` nodes, while capitalized constructor
+spelling is preserved syntactically without constructor resolution. Idris 2's
+inspected case parser uses `=>` and `impossible` branch forms rather than a
+separate case-guard delimiter, so guard parsing remains a documented gap.
 
 ## Naming convention
 
@@ -117,7 +127,7 @@ Named nodes describe syntactic relationships (`module_declaration`,
 `constructor_declaration`, `constructor_name`, `operator_name`,
 `infix_expression`, `lambda_expression`, `case_expression`,
 `case_alternative`, `pattern`, `parenthesized_pattern`, and
-`constructor_application_pattern`. Lexical names use `identifier`,
+`constructor_application_pattern`, and `constructor_pattern`. Lexical names use `identifier`,
 `integer`, `double`, `char`, and `string`; comments use named extras. Structural
 children that exist only to factor the grammar are hidden with a leading
 underscore. Declaration names, module names, data names, constructor names,
@@ -146,11 +156,13 @@ declaration.
 - Expressions now cover the bounded delimiter-based `case` form described
   above, but do not cover `with`, layout-separated alternatives, or
   fixity-dependent precedence. Stage 05 supports lambdas and named function
-  patterns only in the bounded forms above; bare constructor patterns without
-  arguments, unparenthesized constructor applications outside case
-  alternatives, lower-case constructor spellings, and pattern guards remain
-  gaps. Infix operators use one generic left-associative precedence in this
-  stage. Binder lists support
+  patterns only in the bounded forms above; bare constructor patterns are
+  supported only through the case-specific constructor entry point,
+  unparenthesized constructor applications outside case alternatives,
+  lower-case constructor spellings, and pattern guards remain gaps. Idris 2
+  `impossible` branches, layout-separated alternatives, and guard-like
+  dependent pattern forms need a separate syntax contract. Infix operators use
+  one generic left-associative precedence in this stage. Binder lists support
   comma-separated identifiers with one shared optional type; more elaborate
   binder forms remain unsupported.
 - The repository remains on the pinned `tree-sitter-cli` `0.20.6`; generated

@@ -1,0 +1,23 @@
+================================================================================
+incomplete constructor patterns
+================================================================================
+module Stage07.IncompletePatterns
+
+bareBranch = case value of Nothing =>
+
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (module_declaration
+      (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      (identifier)
+      (expression
+        (expression
+          (identifier))
+        (constructor_pattern
+          (identifier))))))
