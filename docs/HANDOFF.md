@@ -1,6 +1,6 @@
 # Handoff Note
 
-Updated: 2026-08-28
+Updated: 2026-08-29
 
 ## Objective
 
@@ -9,15 +9,22 @@ Develop this repository into a maintained Idris 2 Tree-sitter grammar and use it
 ## What has happened
 
 - The repository was cloned from `git@github.com:durantschoon/tree-sitter-idris2.git`.
-- The checkout started clean on `master`, tracking `origin/master`.
-- The inherited grammar was inspected and confirmed to be an early baseline covering a limited set of identifiers and literals.
-- No parser implementation changes have been made yet.
-- Planning documentation was added:
+- The inherited grammar and Idris 2 lexer/parser sources were inspected, and the
+  initial planning documentation was added:
   - `README.md`
   - `docs/PROJECT_PLAN.md`
   - `docs/GRAPHIFY_INTEGRATION.md`
   - `docs/DECISIONS.md`
   - this file
+- Stages 01–09 extended the recoverable grammar through declarations, comments,
+  applications, dependent binders, lambdas, pattern clauses, case expressions,
+  bare/applied constructor patterns, impossible branches, and explicit
+  brace/semicolon case alternatives. Each stage report and resolved forecast is
+  committed on `master`.
+- Stage 09's executor worktree was cleaned up after merge. The primary checkout
+  is clean on `master`; the local branch is three commits ahead of
+  `origin/master` because the reviewed Stage 09 implementation, reservation,
+  and forecast-resolution commits have not yet been pushed.
 
 ## Durable decisions
 
@@ -32,36 +39,40 @@ See `docs/DECISIONS.md` for the full rationale.
 
 ## Current repository state
 
-The inherited repository contains:
+The repository contains:
 
-- `grammar.js`;
-- generated parser sources under `src/`;
+- `grammar.js` with the bounded Stage 09 syntax slice;
+- generated parser sources under `src/`, synchronized with Tree-sitter CLI
+  `0.20.6`;
 - Node and Rust bindings;
 - `package.json` and `package-lock.json`;
-- `test.idr`;
-- no corpus test directory;
-- no highlighting queries;
-- no Python binding.
+- focused corpus fixtures under `corpus/` for all supported stages;
+- `docs/syntax-inventory.md` documenting stable nodes and known gaps;
+- no highlighting queries or Python binding yet.
 
-The planning files are currently uncommitted and are the only working-tree changes known from this session.
+The current known gaps include layout-separated alternatives, `with` clauses,
+guards, richer dependent patterns, declaration families beyond the current
+data slice, literate source, and fixity-aware precedence.
 
 ## Next concrete action
 
-Begin M0 in `docs/PROJECT_PLAN.md`:
-
-1. Inspect current Idris2 lexer/parser sources and the inherited grammar’s referenced commit.
-2. Compare other Idris Tree-sitter grammar work.
-3. Create a syntax inventory and establish the supported Tree-sitter CLI/runtime versions.
-4. Add the first corpus fixture for a module, import, type signature, and function definition.
-
-Do not begin Graphify changes until the grammar’s core node naming and corpus-test conventions are established.
+Continue the staged M1 pipeline with Stage 10: inspect the current Idris 2
+`with` rule and its block/separator behavior, then implement only a bounded
+explicit brace/semicolon form if it can be represented truthfully without
+indentation state. Otherwise record the concrete blocker and defer it. Keep
+Graphify changes out of scope.
 
 ## Verification status
 
-- `git status --short --branch`: passed; branch is `master...origin/master` with the new planning files untracked.
-- `git diff --check`: passed for tracked changes; newly added files should be included in the first staged diff check.
-- Parser tests: not run during this planning-only session.
-- No commit or push was performed.
+- Stage 09 generation, focused debug tests, metadata inspection, full corpus
+  tests, and `git diff --check` passed; see
+  `docs/stages/stage-09-REPORT.md` for exact commands.
+- The literal global-cache `npm test` remedy remains blocked by managed cache
+  permissions; the documented x86_64 wrapper with a writable temporary HOME
+  passed the full suite.
+- `git worktree list` contains only the primary checkout after Stage 09
+  cleanup.
+- No push has been performed from this resumed session.
 
 ## External dependencies
 

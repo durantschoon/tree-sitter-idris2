@@ -85,6 +85,13 @@ stage-specific checks listed in its prompt.
   13 unmodeled pivots were `overlooked`; lower mid-range anchors and add an
   explicit source/inventory/corpus scouting pass before bounding the branch
   tree.
+- Stage-10 retro (2026-08-29): the ledger reports 16 `overlooked` unmodeled
+  pivots overall, including repeated executor interruptions and cache/worktree
+  friction in Stages 05–09. Every launch must verify the isolated worktree has
+  dependencies or a tested restoration path before execution, and every review
+  must reserve time for coordinator recovery, independent gates, and explicit
+  non-force cleanup. Keep env/tooling forecasts near the measured 46% category
+  posterior; do not treat repeated friction as a reason to weaken syntax gates.
 
 ## Pipeline route
 
