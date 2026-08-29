@@ -130,6 +130,10 @@
           {
             "type": "case_alternative",
             "named": true
+          },
+          {
+            "type": "impossible_case_alternative",
+            "named": true
           }
         ]
       },
@@ -677,6 +681,30 @@
         "types": [
           {
             "type": "module_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "impossible_case_alternative",
+    "named": true,
+    "fields": {
+      "pattern": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "constructor_application_pattern",
+            "named": true
+          },
+          {
+            "type": "constructor_pattern",
+            "named": true
+          },
+          {
+            "type": "pattern",
             "named": true
           }
         ]

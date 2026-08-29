@@ -31,6 +31,7 @@ module.exports = grammar({
     [$.constructor_pattern, $.constructor_application_pattern],
     [$.case_expression, $.infix_expression],
     [$.case_alternative, $.infix_expression],
+    [$.impossible_case_alternative, $.infix_expression],
   ],
 
   rules: {
@@ -194,11 +195,18 @@ module.exports = grammar({
       $._case,
       field('scrutinee', $.expression),
       $._case_of,
-      field('alternative', $.case_alternative),
+      field('alternative', choice(
+        $.case_alternative,
+        $.impossible_case_alternative,
+      )),
       repeat(seq(
         $._case_bar,
-        field('alternative', $.case_alternative),
+        field('alternative', choice(
+          $.case_alternative,
+          $.impossible_case_alternative,
+        )),
       )),
+      optional($._case_bar),
     ))),
 
     case_alternative: $ => prec.right(10, seq(
@@ -218,7 +226,11 @@ module.exports = grammar({
       $._case,
       field('scrutinee', $.expression),
       $._case_of,
-      field('alternative', $._incomplete_case_alternative),
+      field('alternative', choice(
+        $._incomplete_case_alternative,
+        $._incomplete_impossible_case_alternative,
+      )),
+      optional($._case_bar),
     )),
 
     _incomplete_case_alternative: $ => prec.right(seq(
@@ -229,6 +241,26 @@ module.exports = grammar({
       )),
       $._case_arrow,
       optional(field('body', alias($._case_body_expression, $.expression))),
+    )),
+
+    // Idris 2 permits an impossible case branch as `pattern impossible`.
+    // Keep it separate because this source form has no expression body.
+    impossible_case_alternative: $ => prec.right(10, seq(
+      field('pattern', choice(
+        $.constructor_application_pattern,
+        $.constructor_pattern,
+        $.pattern,
+      )),
+      $._case_impossible,
+    )),
+
+    _incomplete_impossible_case_alternative: $ => prec.right(seq(
+      field('pattern', choice(
+        $.constructor_application_pattern,
+        $.constructor_pattern,
+        $.pattern,
+      )),
+      $._case_impossible,
     )),
 
     // Case alternatives stop at a literal `|`. Keep a local expression layer
@@ -264,6 +296,8 @@ module.exports = grammar({
     _case_of: $ => token.immediate(prec(10, /[ \t]+of/)),
 
     _case_arrow: $ => token.immediate(prec(10, /[ \t]*=>/)),
+
+    _case_impossible: $ => token.immediate(prec(10, /[ \t]+impossible/)),
 
     _case_bar: $ => token.immediate(prec(20, /[ \t]*\|/)),
 

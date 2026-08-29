@@ -760,8 +760,17 @@
               "type": "FIELD",
               "name": "alternative",
               "content": {
-                "type": "SYMBOL",
-                "name": "case_alternative"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "case_alternative"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "impossible_case_alternative"
+                  }
+                ]
               }
             },
             {
@@ -777,12 +786,33 @@
                     "type": "FIELD",
                     "name": "alternative",
                     "content": {
-                      "type": "SYMBOL",
-                      "name": "case_alternative"
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "SYMBOL",
+                          "name": "case_alternative"
+                        },
+                        {
+                          "type": "SYMBOL",
+                          "name": "impossible_case_alternative"
+                        }
+                      ]
                     }
                   }
                 ]
               }
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_case_bar"
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
             }
           ]
         }
@@ -861,9 +891,30 @@
             "type": "FIELD",
             "name": "alternative",
             "content": {
-              "type": "SYMBOL",
-              "name": "_incomplete_case_alternative"
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_incomplete_case_alternative"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "_incomplete_impossible_case_alternative"
+                }
+              ]
             }
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_case_bar"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
           }
         ]
       }
@@ -919,6 +970,74 @@
                 "type": "BLANK"
               }
             ]
+          }
+        ]
+      }
+    },
+    "impossible_case_alternative": {
+      "type": "PREC_RIGHT",
+      "value": 10,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "pattern",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "constructor_application_pattern"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "constructor_pattern"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "pattern"
+                }
+              ]
+            }
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_case_impossible"
+          }
+        ]
+      }
+    },
+    "_incomplete_impossible_case_alternative": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "pattern",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "constructor_application_pattern"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "constructor_pattern"
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "pattern"
+                }
+              ]
+            }
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_case_impossible"
           }
         ]
       }
@@ -1049,6 +1168,17 @@
         "content": {
           "type": "PATTERN",
           "value": "[ \\t]*=>"
+        }
+      }
+    },
+    "_case_impossible": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "PREC",
+        "value": 10,
+        "content": {
+          "type": "PATTERN",
+          "value": "[ \\t]+impossible"
         }
       }
     },
@@ -1772,6 +1902,10 @@
     ],
     [
       "case_alternative",
+      "infix_expression"
+    ],
+    [
+      "impossible_case_alternative",
       "infix_expression"
     ]
   ],

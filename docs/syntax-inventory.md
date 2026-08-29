@@ -16,6 +16,10 @@ slice, not a claim of complete Idris 2 coverage.
 - `Parser.Rule.Source`: the source-level parser entry point and declaration
   families. Inspected at the current `main` branch:
   <https://github.com/idris-lang/Idris2/blob/main/src/Parser/Rule/Source.idr>.
+- `Parser.Lexer.Source` reserves `impossible` as a keyword. The upstream
+  parser history records the case-branch spelling as `(pattern) impossible`
+  before the next alternative:
+  <https://github.com/idris-lang/Idris-dev/blob/master/CHANGELOG.md#L693-L698>.
 - The inherited grammar cites the 2022 parser snapshot at commit `03f23b0`,
   including `Libraries.Text.Lexer` and `Prelude.Types`; those references are
   retained in `grammar.js` as historical lexer provenance.
@@ -72,6 +76,7 @@ The corpus establishes the following supported constructs:
 | `case value of Just x => x | _ => 0` | `case_expression` | `case_alternative` children with named `pattern` and `body` fields |
 | `case x of 0 => 1 | _ => 2` | `case_expression` | literal and hole patterns reuse the existing `pattern` node |
 | `case value of Nothing => 0 | Just x => x` | `case_expression` | bare constructors use `constructor_pattern`; applied constructors use `constructor_application_pattern` |
+| `case value of Nothing impossible | Just x => x` | `case_expression` | `impossible_case_alternative` has a named `pattern` and intentionally no `body` |
 
 The source-file root remains `module` for compatibility with the inherited
 grammar. `module_name` contains one or more `identifier` nodes separated by
@@ -117,6 +122,19 @@ lower-case identifiers remain `pattern` nodes, while capitalized constructor
 spelling is preserved syntactically without constructor resolution. Idris 2's
 inspected case parser uses `=>` and `impossible` branch forms rather than a
 separate case-guard delimiter, so guard parsing remains a documented gap.
+Stage 08 adds the directly evidenced impossible branch spelling `pattern
+impossible`. The `impossible` keyword terminates the branch without an arrow
+or expression body, so it uses a separate named `impossible_case_alternative`
+node with one required `pattern` field; reusing `case_alternative` would falsely
+promise its required `body` field. The node is syntax-only: the grammar does
+not decide whether the pattern is actually unreachable. The bounded form uses
+the existing explicit `|` separators, and a trailing `|` is consumed for
+incomplete recovery. The full Idris source form may use braces, semicolons, and
+layout-sensitive alternatives; those separators are not claimed here. The
+lexer/source parser evidence reserves `impossible` as a keyword, and the
+upstream language history records the case spelling as a pattern followed by
+`impossible` (see the linked source references above and the Idris-dev parser
+example).
 
 ## Naming convention
 
@@ -160,7 +178,8 @@ declaration.
   supported only through the case-specific constructor entry point,
   unparenthesized constructor applications outside case alternatives,
   lower-case constructor spellings, and pattern guards remain gaps. Idris 2
-  `impossible` branches, layout-separated alternatives, and guard-like
+  `impossible_case_alternative` covers only `pattern impossible` with explicit
+  bars; layout-separated alternatives, semicolon/braced forms, and guard-like
   dependent pattern forms need a separate syntax contract. Infix operators use
   one generic left-associative precedence in this stage. Binder lists support
   comma-separated identifiers with one shared optional type; more elaborate

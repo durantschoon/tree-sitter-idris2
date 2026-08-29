@@ -1,0 +1,25 @@
+================================================================================
+incomplete impossible case branches
+================================================================================
+module Stage08.IncompleteImpossible
+
+missingAlternative = case value of Nothing impossible |
+
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (module_declaration
+      (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      (identifier)
+      (expression
+        (case_expression
+          (expression
+            (identifier))
+          (impossible_case_alternative
+            (constructor_pattern
+              (identifier))))))))

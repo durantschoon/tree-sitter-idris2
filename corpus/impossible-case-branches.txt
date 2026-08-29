@@ -1,0 +1,102 @@
+================================================================================
+impossible case branches
+================================================================================
+module Stage08.ImpossibleBranches
+
+ordinaryThenImpossible = case value of Just x => x | Nothing impossible
+impossibleThenOrdinary = case value of Nothing impossible | Just x => x
+body = case outer of Just x => case x of Nothing impossible | Just y => y | _ => 0 | _ => 1
+functionBody x = case x of Nothing impossible | Just y => y
+
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (module_declaration
+      (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      (identifier)
+      (expression
+        (case_expression
+          (expression
+            (identifier))
+          (case_alternative
+            (constructor_application_pattern
+              (identifier)
+              (identifier))
+            (expression
+              (identifier)))
+          (impossible_case_alternative
+            (constructor_pattern
+              (identifier)))))))
+  (declaration
+    (function_definition
+      (identifier)
+      (expression
+        (case_expression
+          (expression
+            (identifier))
+          (impossible_case_alternative
+            (constructor_pattern
+              (identifier)))
+          (case_alternative
+            (constructor_application_pattern
+              (identifier)
+              (identifier))
+            (expression
+              (identifier)))))))
+  (declaration
+    (function_definition
+      (identifier)
+      (expression
+        (case_expression
+          (expression
+            (identifier))
+          (case_alternative
+            (constructor_application_pattern
+              (identifier)
+              (identifier))
+            (expression
+              (case_expression
+                (expression
+                  (identifier))
+                (impossible_case_alternative
+                  (constructor_pattern
+                    (identifier)))
+                (case_alternative
+                  (constructor_application_pattern
+                    (identifier)
+                    (identifier))
+                  (expression
+                    (identifier))))))
+          (case_alternative
+            (pattern
+              (hole))
+            (expression
+              (integer)))
+          (case_alternative
+            (pattern
+              (hole))
+            (expression
+              (integer)))))))
+  (declaration
+    (function_definition
+      (identifier)
+      (pattern
+        (identifier))
+      (expression
+        (case_expression
+          (expression
+            (identifier))
+          (impossible_case_alternative
+            (constructor_pattern
+              (identifier)))
+          (case_alternative
+            (constructor_application_pattern
+              (identifier)
+              (identifier))
+            (expression
+              (identifier))))))))
