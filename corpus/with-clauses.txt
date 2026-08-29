@@ -1,0 +1,135 @@
+================================================================================
+brace with clauses
+================================================================================
+module Stage10.WithClauses
+
+check n with (isZero n) { check n | True = 1; }
+mixed value with (view value) { mixed value | Just x = x; mixed _ | Nothing = 0; mixed value | False = case value of { Nothing => 0; Just y => y } }
+nested value with (case value of { Nothing => 0; Just x => x }) { _ | 0 = case value of { Nothing => 0; Just x => x }; nested value | _ = value + 1 }
+
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (module_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (with_declaration
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        body: (expression
+          (integer)))))
+  (declaration
+    (with_declaration
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_application_pattern
+          constructor: (identifier)
+          argument: (identifier))
+        body: (expression
+          (identifier)))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (hole))
+        view_pattern: (constructor_pattern
+          (identifier))
+        body: (expression
+          (integer)))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        body: (expression
+          (case_expression
+            scrutinee: (expression
+              (identifier))
+            alternative: (case_alternative
+              pattern: (constructor_pattern
+                (identifier))
+              body: (expression
+                (integer)))
+            alternative: (case_alternative
+              pattern: (constructor_application_pattern
+                constructor: (identifier)
+                argument: (identifier))
+              body: (expression
+                (identifier))))))))
+  (declaration
+    (with_declaration
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      view: (parenthesized_expression
+        (expression
+          (case_expression
+            scrutinee: (expression
+              (identifier))
+            alternative: (case_alternative
+              pattern: (constructor_pattern
+                (identifier))
+              body: (expression
+                (integer)))
+            alternative: (case_alternative
+              pattern: (constructor_application_pattern
+                constructor: (identifier)
+                argument: (identifier))
+              body: (expression
+                (identifier))))))
+      clause: (with_clause
+        refined_parameter: (pattern
+          (hole))
+        view_pattern: (pattern
+          (integer))
+        body: (expression
+          (case_expression
+            scrutinee: (expression
+              (identifier))
+            alternative: (case_alternative
+              pattern: (constructor_pattern
+                (identifier))
+              body: (expression
+                (integer)))
+            alternative: (case_alternative
+              pattern: (constructor_application_pattern
+                constructor: (identifier)
+                argument: (identifier))
+              body: (expression
+                (identifier))))))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (pattern
+          (hole))
+        body: (expression
+          (infix_expression
+            left: (identifier)
+            operator: (operator)
+            right: (integer)))))))

@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 09 baseline. This is an inventory for the recoverable grammar
+Status: Stage 10 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -87,6 +87,8 @@ The corpus establishes the following supported constructs:
 | `case value of Nothing => 0 | Just x => x` | `case_expression` | bare constructors use `constructor_pattern`; applied constructors use `constructor_application_pattern` |
 | `case value of Nothing impossible | Just x => x` | `case_expression` | `impossible_case_alternative` has a named `pattern` and intentionally no `body` |
 | `case value of { Nothing impossible; Just x => x }` | `case_expression` | brace-delimited alternatives use semicolon separators and retain the same ordinary/impossible branch contracts |
+| `check n with (isZero n) { check n | True = 1 }` | `with_declaration` | one named `view`, original `parameter` fields, and repeated `clause` fields |
+| `check n | True = 1` inside a with block | `with_clause` | optional repeated `name`/`refined_parameter`, required `view_pattern`, and `body` fields |
 
 The source-file root remains `module` for compatibility with the inherited
 grammar. `module_name` contains one or more `identifier` nodes separated by
@@ -161,6 +163,30 @@ indentation-separated alternatives: the upstream parser's `column` and
 scanner or indentation state. Newline-only separation, `with`, and guards
 remain gaps.
 
+Stage 10 adds a separate `with_declaration` for the directly bounded explicit
+form `name parameters with (view) { clause ; clause ; }`. The official views
+tutorial gives the header `filter p (x :: xs) with (filter p xs)` and refined
+clauses such as `filter p (x :: xs) | ( _ ** xs' ) = ...`; it also documents `_`
+as an abbreviation for an unchanged left side and `|`-separated multiple
+views. This grammar intentionally supports only one parenthesized view
+expression and one explicit brace-delimited block. Each `with_clause` keeps
+the optional repeated `name`/`refined_parameter` fields to the left of `|`,
+the required `view_pattern` to its right, and the existing `expression` shape
+as `body`. Thus declaration parameters cannot be confused with post-bar view
+patterns. Existing pattern atoms are reused syntactically; dependent
+refinement, constructor resolution, and exhaustiveness are not inferred.
+
+The current Idris 2 lexer/parser evidence remains the delimiter/layout
+boundary: `;`, `{`, and `}` are lexical symbols, spaces are removed before
+parsing, explicit brace blocks use `blockEntries AnyIndent`, and layout
+termination uses `column`/`ValidIndent`. The official tutorial's examples
+place with clauses on indented lines, while the documented explicit form here
+uses braces and semicolons only. Consequently this stage does not accept
+indentation-separated clauses, multiple view expressions, nested with blocks,
+guards, or richer dependent/function patterns. A missing closing brace is a
+bounded recovery case and retains the `with_declaration` tree with a missing
+close token rather than an unexpected top-level `ERROR`.
+
 ## Naming convention
 
 Named nodes describe syntactic relationships (`module_declaration`,
@@ -169,7 +195,8 @@ Named nodes describe syntactic relationships (`module_declaration`,
 `explicit_binder`, `implicit_binder`, `data_declaration`,
 `constructor_declaration`, `constructor_name`, `operator_name`,
 `infix_expression`, `lambda_expression`, `case_expression`,
-`case_alternative`, `pattern`, `parenthesized_pattern`, and
+`case_alternative`, `with_declaration`, `with_clause`, `pattern`,
+`parenthesized_pattern`, and
 `constructor_application_pattern`, and `constructor_pattern`. Lexical names use `identifier`,
 `integer`, `double`, `char`, and `string`; comments use named extras. Structural
 children that exist only to factor the grammar are hidden with a leading
@@ -197,8 +224,8 @@ declaration.
   by the Stage 03 corpus; full layout semantics remain a gap. Operator names
   are currently limited to ASCII symbolic runs and parenthesized forms.
 - Expressions now cover the bounded explicit-bar and brace/semicolon `case`
-  forms described above, but do not cover `with`, layout-separated alternatives,
-  or
+  forms and the explicit brace/semicolon `with` form described above, but do
+  not cover layout-separated alternatives or
   fixity-dependent precedence. Stage 05 supports lambdas and named function
   patterns only in the bounded forms above; bare constructor patterns are
   supported only through the case-specific constructor entry point,

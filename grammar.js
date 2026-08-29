@@ -32,6 +32,7 @@ module.exports = grammar({
     [$.case_expression, $.infix_expression],
     [$.case_alternative, $.infix_expression],
     [$.impossible_case_alternative, $.infix_expression],
+    [$.with_declaration, $._incomplete_with_declaration],
   ],
 
   rules: {
@@ -42,6 +43,8 @@ module.exports = grammar({
       $.module_declaration,
       $.import_declaration,
       $.type_signature,
+      $.with_declaration,
+      alias($._incomplete_with_declaration, $.with_declaration),
       $.function_definition
     ),
 
@@ -84,6 +87,64 @@ module.exports = grammar({
       ':',
       field('type', $.type)
     ),
+
+    // Keep the source-level with form distinct from ordinary function
+    // definitions. The original function patterns are carried by this node;
+    // each refined clause records its own left-side patterns and post-bar
+    // view-result pattern separately.
+    with_declaration: $ => seq(
+      field('name', choice($.identifier, $.operator_name)),
+      repeat(field('parameter', $.pattern)),
+      $._with,
+      field('view', $.parenthesized_expression),
+      $._case_open,
+      field('clause', $.with_clause),
+      repeat(seq(
+        $._case_semicolon,
+        field('clause', $.with_clause),
+      )),
+      optional($._case_semicolon),
+      $._case_close,
+    ),
+
+    // A missing close is a bounded recovery shape, like the existing braced
+    // case recovery. Missing separators between clauses remain errors rather
+    // than being inferred from whitespace.
+    _incomplete_with_declaration: $ => prec.right(-1, seq(
+      field('name', choice($.identifier, $.operator_name)),
+      repeat(field('parameter', $.pattern)),
+      $._with,
+      field('view', $.parenthesized_expression),
+      $._case_open,
+      field('clause', $.with_clause),
+      repeat(seq(
+        optional($._case_semicolon),
+        field('clause', $.with_clause),
+      )),
+      optional($._case_semicolon),
+      $._case_close,
+    )),
+
+    // The left side may repeat the declaration's name and refined parameter
+    // patterns, or use `_` to abbreviate the unchanged left side. The pattern
+    // after `|` is specifically the intermediate view result.
+    with_clause: $ => prec.right(10, seq(
+      choice(
+        seq(
+          field('name', choice($.identifier, $.operator_name)),
+          repeat(field('refined_parameter', $.pattern)),
+        ),
+        field('refined_parameter', $.pattern),
+      ),
+      $._case_bar,
+      field('view_pattern', choice(
+        $.constructor_application_pattern,
+        $.constructor_pattern,
+        $.pattern,
+      )),
+      $._equals,
+      field('body', alias($._with_body_expression, $.expression)),
+    )),
 
     function_definition: $ => seq(
       field('name', choice($.identifier, $.operator_name)),
@@ -345,6 +406,17 @@ module.exports = grammar({
     _case_impossible: $ => token.immediate(prec(10, /[ \t]+impossible/)),
 
     _case_bar: $ => token.immediate(prec(20, /[ \t]*\|/)),
+
+    _with: $ => token(prec(10, 'with')),
+    // Keep with bodies on the existing expression surface, including nested
+    // case expressions, without introducing with blocks as expressions.
+    _with_body_expression: $ => choice(
+      $.lambda_expression,
+      $.case_expression,
+      $._incomplete_case_expression,
+      $.infix_expression,
+      $._expression_term,
+    ),
 
     pattern: $ => choice(
       $.parenthesized_pattern,
