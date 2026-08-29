@@ -78,9 +78,14 @@ module.exports = grammar({
 
     function_definition: $ => seq(
       field('name', choice($.identifier, $.operator_name)),
-      '=',
+      repeat(field('parameter', $.pattern)),
+      $._equals,
       field('body', $.expression)
     ),
+
+    // Keep declaration assignment distinct from the Stage 04 infix token,
+    // including when a pattern application is followed by equals spacing.
+    _equals: $ => token.immediate(prec(2, /[ \t]*=/)),
 
     module_name: $ => seq(
       $.identifier,
@@ -118,7 +123,30 @@ module.exports = grammar({
       '}',
     ),
 
-    expression: $ => choice($.infix_expression, $._expression_term),
+    expression: $ => choice(
+      $.lambda_expression,
+      $.infix_expression,
+      $._expression_term,
+    ),
+
+    lambda_expression: $ => prec.right(seq(
+      '\\',
+      field('parameter', choice(
+        $.explicit_binder,
+        $.implicit_binder,
+        $.identifier,
+      )),
+      repeat(seq(
+        ',',
+        field('parameter', choice(
+          $.explicit_binder,
+          $.implicit_binder,
+          $.identifier,
+        )),
+      )),
+      '=>',
+      field('body', $.expression),
+    )),
 
     application: $ => prec.left(2, seq(
       field('function', choice($._expression_atom, $.operator_name)),
@@ -149,6 +177,45 @@ module.exports = grammar({
     ),
 
     parenthesized_expression: $ => seq('(', $.expression, ')'),
+
+    pattern: $ => choice(
+      $.parenthesized_pattern,
+      $.hole,
+      $._number,
+      $._text,
+      $.identifier,
+    ),
+
+    parenthesized_pattern: $ => seq(
+      '(',
+      field('pattern', choice(
+        $.constructor_application_pattern,
+        $.pattern,
+      )),
+      ')',
+    ),
+
+    constructor_application_pattern: $ => prec.left(1, seq(
+      field('constructor', $._pattern_constructor),
+      repeat1(seq(
+        token.immediate(/[ \t]+/),
+        field('argument', choice(
+          $.parenthesized_pattern,
+          $.hole,
+          $._number,
+          $._text,
+          $.identifier,
+        )),
+      )),
+    )),
+
+    // Constructor patterns are capitalized in Idris source. Keeping this
+    // lexical distinction lets f x y remain two pattern parameters while
+    // f (S k) remains one constructor-application pattern.
+    _pattern_constructor: $ => alias(
+      /[A-Z][A-Za-z0-9_']*/,
+      $.identifier,
+    ),
 
     qualified_name: $ => seq(
       $.identifier,

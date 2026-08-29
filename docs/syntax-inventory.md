@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 04 baseline. This is an inventory for the recoverable grammar
+Status: Stage 05 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -43,6 +43,15 @@ The corpus establishes the following supported constructs:
 | `import Foo.Bar` | `import_declaration` | named `module_name` |
 | `name : A -> B` | `type_signature` | named `name` and `type` |
 | `name = expression` | `function_definition` | named `name` and `body` |
+| `\x => expression` | `lambda_expression` | named `parameter` and `body` |
+| `\x, y => expression` | `lambda_expression` | repeated `parameter` fields and one `body` |
+| `\(x : Type) => expression` | `lambda_expression` | explicit binder parameter reused from type syntax |
+| `\{a : Type} => expression` | `lambda_expression` | implicit binder parameter reused from type syntax |
+| `f x = expression` | `function_definition` | repeated `parameter` fields and existing `name`/`body` fields |
+| `f 0 = expression` | `function_definition` | literal wrapped in a `pattern` node |
+| `f _ = expression` | `function_definition` | hole wrapped in a `pattern` node |
+| `f (x) = expression` | `function_definition` | `parenthesized_pattern` with a nested `pattern` |
+| `f (S k) = expression` | `function_definition` | `constructor_application_pattern` with `constructor` and repeated `argument` fields |
 | `data Bool : Type where ...` | `data_declaration` | named `name`, repeated `constructor`, and `type` |
 | `data Maybe (a : Type) : Type where ...` | `data_declaration` | repeated `parameters` preserve explicit/implicit binder nodes |
 | `False : Bool` in a data declaration | `constructor_declaration` | named `name` (`constructor_name`) and optional `type` |
@@ -76,7 +85,17 @@ all operators as one left-associative precedence, with application binding
 tighter and parentheses providing explicit grouping. A hidden lexical rule
 consumes same-line spacing before an infix operator so it cannot be mistaken
 for an application argument separator; the public field remains the stable
-`operator` node.
+`operator` node. Stage 05 adds `lambda_expression` with repeated `parameter`
+fields and one `body` field. Lambda parameters may be identifiers or the
+existing explicit/implicit binder nodes. Function definitions retain their
+Stage 01–04 `name` and `body` fields and now have optional repeated
+`parameter` fields, each containing a `pattern`. Patterns cover identifiers,
+literals, holes, and parenthesized patterns. Parenthesized patterns can
+contain a capitalized constructor application, whose stable
+`constructor_application_pattern` node has a `constructor` field and repeated
+`argument` fields. This capitalized, parenthesized boundary is a deliberate
+syntax-only compatibility slice: it keeps `f x y` as two parameters and avoids
+introducing layout state or constructor resolution.
 
 ## Naming convention
 
@@ -84,8 +103,9 @@ Named nodes describe syntactic relationships (`module_declaration`,
 `import_declaration`, `type_signature`, `function_definition`, `module_name`,
 `type`, `expression`, `application`, `qualified_name`, `hole`,
 `explicit_binder`, `implicit_binder`, `data_declaration`,
-`constructor_declaration`, `constructor_name`, `operator_name`, and
-`infix_expression`). Lexical names use `identifier`,
+`constructor_declaration`, `constructor_name`, `operator_name`,
+`infix_expression`, `lambda_expression`, `pattern`, `parenthesized_pattern`,
+and `constructor_application_pattern`. Lexical names use `identifier`,
 `integer`, `double`, `char`, and `string`; comments use named extras. Structural
 children that exist only to factor the grammar are hidden with a leading
 underscore. Declaration names, module names, data names, constructor names,
@@ -111,9 +131,12 @@ declaration.
   declarations are supported only in the delimiter-based `where` form covered
   by the Stage 03 corpus; full layout semantics remain a gap. Operator names
   are currently limited to ASCII symbolic runs and parenthesized forms.
-- Expressions currently do not cover pattern matching, lambdas, named function
-  parameters, or fixity-dependent precedence. Infix operators use one generic
-  left-associative precedence in this stage. Binder lists support
+- Expressions still do not cover pattern matching, `case`, `with`, or
+  fixity-dependent precedence. Stage 05 supports lambdas and named function
+  patterns only in the bounded forms above; unparenthesized constructor
+  applications, lower-case constructor spellings, pattern alternatives, and
+  pattern guards remain gaps. Infix operators use one generic left-associative
+  precedence in this stage. Binder lists support
   comma-separated identifiers with one shared optional type; more elaborate
   binder forms remain unsupported.
 - The repository remains on the pinned `tree-sitter-cli` `0.20.6`; generated

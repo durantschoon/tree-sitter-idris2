@@ -1,0 +1,127 @@
+================================================================================
+lambdas and pattern clauses
+================================================================================
+module Stage05.Lambdas
+
+identity = \x => x
+pair = \x, y => x y
+typed = \(x : Nat) => x
+implicit = \{a : Type} => a
+
+isZero Z = True
+isZero (S k) = False
+literal 0 = False
+wildcard _ = True
+parenthesized (x) = x
+multi x y = x + y
+
+incomplete = \x =>
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (module_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (lambda_expression
+          parameter: (identifier)
+          body: (expression
+            (identifier))))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (lambda_expression
+          parameter: (identifier)
+          parameter: (identifier)
+          body: (expression
+            (application
+              function: (identifier)
+              argument: (identifier)))))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (lambda_expression
+          parameter: (explicit_binder
+            name: (identifier)
+            type: (type
+              (identifier)))
+          body: (expression
+            (identifier))))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (lambda_expression
+          parameter: (implicit_binder
+            name: (identifier)
+            type: (type
+              (identifier)))
+          body: (expression
+            (identifier))))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      body: (expression
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      parameter: (pattern
+        (parenthesized_pattern
+          pattern: (constructor_application_pattern
+            constructor: (identifier)
+            argument: (identifier))))
+      body: (expression
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      parameter: (pattern
+        (integer))
+      body: (expression
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      parameter: (pattern
+        (hole))
+      body: (expression
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      parameter: (pattern
+        (parenthesized_pattern
+          pattern: (pattern
+            (identifier))))
+      body: (expression
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      parameter: (pattern
+        (identifier))
+      body: (expression
+        (infix_expression
+          left: (identifier)
+          operator: (operator)
+          right: (identifier)))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (lambda_expression
+          parameter: (identifier)
+          body: (expression
+            (MISSING identifier)))))))
