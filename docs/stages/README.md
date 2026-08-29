@@ -19,6 +19,16 @@ The numbered stage contracts may split a milestone into several independently
 reviewable stages. Stage prompts are canonical; reports record evidence,
 deviations, and open questions for later stages.
 
+## Known-problem registry
+
+Directory-dependent environment problems and their tested remedies live in
+[`docs/stages/known-problems/`](known-problems/). Before launching a stage,
+read the entries applicable to the repository and execution environment. Each
+new stage prompt must list the applicable problem IDs and remedies; its report
+must record which remedies were used and whether they worked. Add a new entry
+when an environment or directory-specific failure is discovered, preserving
+prior entries as append-only history.
+
 ## Discovered gates
 
 - Static check: `git diff --check`
