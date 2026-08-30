@@ -25,6 +25,10 @@ if ! registered_worktree; then
   exit 0
 fi
 
+if [[ -L "$worktree/node_modules" ]]; then
+  rm "$worktree/node_modules"
+fi
+
 if [[ -n "$(git -C "$worktree" status --porcelain)" ]]; then
   echo "refusing: $worktree has uncommitted or untracked changes" >&2
   exit 1
