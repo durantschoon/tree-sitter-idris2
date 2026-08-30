@@ -23,6 +23,8 @@ module.exports = grammar({
     $._with_layout_separator,
     $._with_layout_end,
     $._newline,
+    $._bird_track,
+    $.literate_comment,
   ],
 
   extras: $ => [
@@ -31,6 +33,8 @@ module.exports = grammar({
     $.doc_comment,
     $.line_comment,
     $.block_comment,
+    $.literate_comment,
+    $._bird_track,
   ],
 
   conflicts: $ => [

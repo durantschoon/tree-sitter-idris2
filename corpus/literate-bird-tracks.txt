@@ -1,0 +1,55 @@
+================================================================================
+literate bird tracks module
+================================================================================
+> module Stage13.LiterateBirdTracks
+> 
+> import Data.String
+> 
+> main : String
+> main = "hello"
+> 
+> gt : Int -> Int -> Bool
+> gt x y = x > y
+
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (module_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (import_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (string))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier)
+        (identifier)
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      parameter: (pattern
+        (identifier))
+      body: (expression
+        (infix_expression
+          left: (identifier)
+          operator: (operator)
+          right: (identifier))))))

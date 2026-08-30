@@ -1,0 +1,37 @@
+================================================================================
+literate prose and code
+================================================================================
+# Literate Module Header
+This is prose introducing the module.
+
+> module Stage13.LiterateProseAndCode
+
+Here is another prose paragraph.
+
+> answer : Int
+> answer = 42
+
+Concluding remarks for the reader.
+
+--------------------------------------------------------------------------------
+
+(module
+  (literate_comment)
+  (literate_comment)
+  (declaration
+    (module_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (literate_comment)
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (integer))))
+  (literate_comment))

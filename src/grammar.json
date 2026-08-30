@@ -2743,6 +2743,14 @@
     {
       "type": "SYMBOL",
       "name": "block_comment"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "literate_comment"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_bird_track"
     }
   ],
   "conflicts": [
@@ -2792,6 +2800,14 @@
     {
       "type": "SYMBOL",
       "name": "_newline"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_bird_track"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "literate_comment"
     }
   ],
   "inline": [],

@@ -1,0 +1,69 @@
+================================================================================
+literate layout with clauses
+================================================================================
+# Literate Layout With Function
+
+> module Stage13.LiterateLayoutWith
+> 
+> check : Nat -> Nat
+> check n with (isZero n)
+>   check n | True = 1
+>   check n | False = 0
+
+Prose concluding the layout block.
+
+> nextFunc : Nat
+> nextFunc = 99
+
+--------------------------------------------------------------------------------
+
+(module
+  (literate_comment)
+  (declaration
+    (module_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier)
+        (identifier))))
+  (declaration
+    (with_declaration
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        body: (expression
+          (integer)))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        body: (expression
+          (integer)))))
+  (literate_comment)
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (integer)))))

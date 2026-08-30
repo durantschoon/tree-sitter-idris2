@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 12 baseline. This is an inventory for the recoverable grammar
+Status: Stage 13 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -91,6 +91,8 @@ The corpus establishes the following supported constructs:
 | `check n with (isZero n)\n  check n | True = 1` | `with_declaration` | layout-separated clauses retain identical `with_clause` nodes and fields |
 | `check x y with (v1) | (v2)\n  check x y | True | False = 1` | `with_declaration` | multiple view expressions and multiple clause view patterns |
 | `check n | True = 1` inside a with block | `with_clause` | optional repeated `name`/`refined_parameter`, required `view_pattern`, and `body` fields |
+| `> module Main\n> main : String` | `module` | bird-track (`>`) code lines in literate `.lidr` files parse into standard module declarations |
+| `# Header\nProse notes` | `literate_comment` | prose lines in literate files are captured as `literate_comment` extras |
 
 The source-file root remains `module` for compatibility with the inherited
 grammar. `module_name` contains one or more `identifier` nodes separated by
@@ -196,6 +198,13 @@ clause accepts matching `| view_pattern` segments (e.g. `f x y | p1 | p2 = body`
 Existing single-view forms, AST node shapes (`with_declaration`, `with_clause`),
 and recovery behavior remain identical and fully backward compatible.
 
+Stage 13 adds syntax-only support for literate Idris (`.lidr`) source files using
+bird tracks (`>`). Lines beginning with `>` at column 0 have the bird track
+stripped as `_bird_track` extras, parsing their enclosed declarations with full
+grammar fidelity including layout blocks and infix operators. Non-code prose
+lines and Markdown headers are captured as `literate_comment` extras. All standard
+`.idr` source files and symbolic `>` operators remain unaffected.
+
 ## Naming convention
 
 Named nodes describe syntactic relationships (`module_declaration`,
@@ -205,14 +214,15 @@ Named nodes describe syntactic relationships (`module_declaration`,
 `constructor_declaration`, `constructor_name`, `operator_name`,
 `infix_expression`, `lambda_expression`, `case_expression`,
 `case_alternative`, `with_declaration`, `with_clause`, `pattern`,
-`parenthesized_pattern`, and
-`constructor_application_pattern`, and `constructor_pattern`. Lexical names use `identifier`,
-`integer`, `double`, `char`, and `string`; comments use named extras. Structural
-children that exist only to factor the grammar are hidden with a leading
-underscore. Declaration names, module names, data names, constructor names,
-types, bodies, application functions/arguments, data parameters, constructor
-alternatives, and binder names/types use fields so downstream consumers do not
-depend on child position. The repeated `argument`, `parameters`, and
+`parenthesized_pattern`,
+`constructor_application_pattern`, `constructor_pattern`, and `literate_comment`.
+Lexical names use `identifier`, `integer`, `double`, `char`, and `string`;
+comments use named extras (`line_comment`, `block_comment`, `doc_comment`,
+`literate_comment`). Structural children that exist only to factor the grammar
+are hidden with a leading underscore. Declaration names, module names, data names,
+constructor names, types, bodies, application functions/arguments, data parameters,
+constructor alternatives, and binder names/types use fields so downstream consumers
+do not depend on child position. The repeated `argument`, `parameters`, and
 `constructor` fields preserve source order. A singleton binder retains the Stage
 02 tree shape; additional comma-separated names add repeated `name` fields to
 that same binder node and share its one type field. Constructors are represented
@@ -226,7 +236,8 @@ declaration.
 - Pragmas, raw/multiline strings, interpolation, and layout-sensitive
   `where`/`do` blocks need dedicated grammar and corpus work. Comments are
   recognized as named extras, but nested block-comment semantics remain a
-  follow-up.
+  follow-up. Fenced Markdown code blocks (` ```idris `) in literate files
+  remain a follow-up.
 - Records, interfaces, implementations, namespaces, parameters, mutual blocks,
   visibility modifiers, and fixity declarations remain unsupported. Data
   declarations are supported only in the delimiter-based `where` form covered

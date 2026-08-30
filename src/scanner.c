@@ -10,11 +10,15 @@ enum TokenType {
   WITH_LAYOUT_SEPARATOR,
   WITH_LAYOUT_END,
   NEWLINE,
+  BIRD_TRACK,
+  LITERATE_COMMENT,
 };
 
 typedef struct {
   uint32_t layout_column;
   bool layout_active;
+  bool is_literate;
+  bool checked_first_line;
 } Scanner;
 
 void *tree_sitter_idris2_external_scanner_create(void) {
@@ -53,7 +57,7 @@ static inline void advance_char(TSLexer *lexer) {
 // Reads newlines, blank lines, and comments, and returns the indentation column
 // of the first non-whitespace, non-comment token on a subsequent line.
 // Returns false if no newline was encountered.
-static bool peek_next_line_indent(TSLexer *lexer, uint32_t *column, bool *is_eof) {
+static bool peek_next_line_indent(Scanner *scanner, TSLexer *lexer, uint32_t *column, bool *is_eof) {
   skip_horizontal_space(lexer);
   if (lexer->lookahead != '\n') {
     return false;
@@ -62,6 +66,20 @@ static bool peek_next_line_indent(TSLexer *lexer, uint32_t *column, bool *is_eof
   while (!lexer->eof(lexer)) {
     if (lexer->lookahead == '\n') {
       advance_char(lexer);
+    }
+
+    if (scanner->is_literate) {
+      if (lexer->lookahead == '>') {
+        advance_char(lexer);
+        if (lexer->lookahead == ' ') {
+          advance_char(lexer);
+        }
+      } else if (!lexer->eof(lexer) && lexer->lookahead != '\n') {
+        // Line without bird track in literate mode ends layout
+        *column = 0;
+        *is_eof = false;
+        return true;
+      }
     }
 
     *column = 0;
@@ -90,7 +108,6 @@ static bool peek_next_line_indent(TSLexer *lexer, uint32_t *column, bool *is_eof
         }
         continue;
       }
-      // If not `--`, we found a `-` at column *column
       *is_eof = false;
       return true;
     }
@@ -107,10 +124,48 @@ bool tree_sitter_idris2_external_scanner_scan(void *payload, TSLexer *lexer,
                                               const bool *valid_symbols) {
   Scanner *scanner = (Scanner *)payload;
 
+  if (lexer->get_column(lexer) == 0) {
+    if (lexer->lookahead == '>') {
+      scanner->is_literate = true;
+      scanner->checked_first_line = true;
+      if (valid_symbols[BIRD_TRACK]) {
+        advance_char(lexer);
+        if (lexer->lookahead == ' ') {
+          advance_char(lexer);
+        }
+        lexer->mark_end(lexer);
+        lexer->result_symbol = BIRD_TRACK;
+        return true;
+      }
+    }
+
+    if (!scanner->checked_first_line) {
+      scanner->checked_first_line = true;
+      if (lexer->lookahead == '#') {
+        scanner->is_literate = true;
+      }
+    }
+
+    if (scanner->is_literate) {
+      if (valid_symbols[LITERATE_COMMENT] &&
+          lexer->lookahead != '>' &&
+          lexer->lookahead != '\n' &&
+          lexer->lookahead != '\r' &&
+          !lexer->eof(lexer)) {
+        while (lexer->lookahead != '\n' && !lexer->eof(lexer)) {
+          advance_char(lexer);
+        }
+        lexer->mark_end(lexer);
+        lexer->result_symbol = LITERATE_COMMENT;
+        return true;
+      }
+    }
+  }
+
   if (valid_symbols[WITH_LAYOUT_START]) {
     uint32_t column = 0;
     bool is_eof = false;
-    if (peek_next_line_indent(lexer, &column, &is_eof)) {
+    if (peek_next_line_indent(scanner, lexer, &column, &is_eof)) {
       if (!is_eof && lexer->lookahead != '{' && column > 0) {
         scanner->layout_column = column;
         scanner->layout_active = true;
@@ -131,7 +186,7 @@ bool tree_sitter_idris2_external_scanner_scan(void *payload, TSLexer *lexer,
 
     uint32_t column = 0;
     bool is_eof = false;
-    if (peek_next_line_indent(lexer, &column, &is_eof)) {
+    if (peek_next_line_indent(scanner, lexer, &column, &is_eof)) {
       if (is_eof) {
         if (valid_symbols[WITH_LAYOUT_END]) {
           scanner->layout_active = false;
