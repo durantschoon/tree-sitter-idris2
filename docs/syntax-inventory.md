@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 14 baseline. This is an inventory for the recoverable grammar
+Status: Stage 15 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -210,6 +210,12 @@ Stage 14 adds Tree-sitter editor queries for syntax highlighting
 documentation language injections (`queries/injections.scm`). All query
 patterns conform to standard Tree-sitter capture conventions and match valid
 nodes in `src/node-types.json`.
+
+Stage 15 verifies and hardens runtime bindings across language ecosystems (C,
+Node.js, Rust). `binding.gyp` and `bindings/rust/build.rs` compile and link
+`src/scanner.c` alongside `src/parser.c`, `bindings/rust/lib.rs` exports
+standard query constants (`HIGHLIGHTS_QUERY`, `TAGS_QUERY`, `INJECTIONS_QUERY`),
+and `tree-sitter-idris2.pc.in` provides pkg-config metadata for C consumers.
 
 ## Naming convention
 
