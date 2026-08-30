@@ -14,7 +14,7 @@ if (process.platform === 'darwin' && process.arch === 'x64') {
   // tree-sitter-cli 0.20 caches the compiled parser globally and does not
   // account for the host architecture when deciding whether to reuse it.
   // Rebuild that cache explicitly so Rosetta cannot load an arm64 library.
-  const cachePath = path.join(
+  let cachePath = path.join(
     os.homedir(),
     'Library',
     'Caches',
@@ -22,7 +22,20 @@ if (process.platform === 'darwin' && process.arch === 'x64') {
     'lib',
     'idris2.so',
   );
-  mkdirSync(path.dirname(cachePath), { recursive: true });
+
+  let useTempHome = false;
+  try {
+    mkdirSync(path.dirname(cachePath), { recursive: true });
+  } catch {
+    useTempHome = true;
+  }
+
+  if (useTempHome) {
+    const tempHome = path.join(os.tmpdir(), 'treesitter-idris2-cache');
+    environment.HOME = tempHome;
+    cachePath = path.join(tempHome, 'Library', 'Caches', 'tree-sitter', 'lib', 'idris2.so');
+    mkdirSync(path.dirname(cachePath), { recursive: true });
+  }
 
   const sources = [path.join(process.cwd(), 'src/parser.c')];
   const scannerPath = path.join(process.cwd(), 'src/scanner.c');
@@ -30,7 +43,7 @@ if (process.platform === 'darwin' && process.arch === 'x64') {
     sources.push(scannerPath);
   }
 
-  const compile = spawnSync(environment.CC, [
+  let compile = spawnSync(environment.CC, [
     '-dynamiclib',
     '-fPIC',
     '-O2',
@@ -42,6 +55,25 @@ if (process.platform === 'darwin' && process.arch === 'x64') {
     env: environment,
     stdio: 'inherit',
   });
+
+  if (compile.status !== 0 && !useTempHome) {
+    const tempHome = path.join(os.tmpdir(), 'treesitter-idris2-cache');
+    environment.HOME = tempHome;
+    cachePath = path.join(tempHome, 'Library', 'Caches', 'tree-sitter', 'lib', 'idris2.so');
+    mkdirSync(path.dirname(cachePath), { recursive: true });
+    compile = spawnSync(environment.CC, [
+      '-dynamiclib',
+      '-fPIC',
+      '-O2',
+      '-Isrc',
+      ...sources,
+      '-o',
+      cachePath,
+    ], {
+      env: environment,
+      stdio: 'inherit',
+    });
+  }
 
   if (compile.error || compile.status !== 0) {
     console.error(compile.error?.message || 'failed to compile the parser');
