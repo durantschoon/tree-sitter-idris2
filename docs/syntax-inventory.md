@@ -1,7 +1,7 @@
 # Idris 2 syntax inventory
 
-Status: Stage 15 baseline. This is an inventory for the recoverable grammar
-slice, not a claim of complete Idris 2 coverage.
+Status: Release 0.0.1 baseline (Milestones M0–M3 Complete). This is an inventory
+for the recoverable grammar slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
 
@@ -216,6 +216,12 @@ Node.js, Rust). `binding.gyp` and `bindings/rust/build.rs` compile and link
 `src/scanner.c` alongside `src/parser.c`, `bindings/rust/lib.rs` exports
 standard query constants (`HIGHLIGHTS_QUERY`, `TAGS_QUERY`, `INJECTIONS_QUERY`),
 and `tree-sitter-idris2.pc.in` provides pkg-config metadata for C consumers.
+
+Stage 16 completes Milestone M3 by adding and validating test suites across
+three real-world Idris 2 repositories (`idris2-prelude`, `idris2-json`, and
+`idris2-literate`). `scripts/test-real-repos.js` verifies that real-world files
+parse into structured ASTs with bounded, robust error recovery, and `npm test`
+now executes both the 27 corpus test suites and real-world repository validation.
 
 ## Naming convention
 

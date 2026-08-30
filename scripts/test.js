@@ -86,9 +86,19 @@ const result = spawnSync('tree-sitter', ['test'], {
   stdio: 'inherit',
 });
 
-if (result.error) {
-  console.error(result.error.message);
-  process.exit(1);
+if (result.error || result.status !== 0) {
+  console.error(result.error?.message || 'Tree-sitter corpus tests failed');
+  process.exit(result.status ?? 1);
 }
 
-process.exit(result.status ?? 1);
+const realRepoTest = spawnSync('node', [path.join(__dirname, 'test-real-repos.js')], {
+  env: environment,
+  stdio: 'inherit',
+});
+
+if (realRepoTest.error || realRepoTest.status !== 0) {
+  console.error(realRepoTest.error?.message || 'Real-world repository tests failed');
+  process.exit(realRepoTest.status ?? 1);
+}
+
+process.exit(0);

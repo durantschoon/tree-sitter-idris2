@@ -55,3 +55,19 @@
 **Rationale:** Idris 2’s dependent and overloaded syntax makes naive name resolution especially prone to false positives.
 
 **Consequence:** Start with modules, imports, declarations, containment, direct calls, and visible type references; add richer resolution only with fixtures proving its behavior.
+
+## D008 — External scanner for indentation layout and literate bird tracks
+
+**Decision:** Implement layout column tracking and bird-track (`>`) line handling in an external C scanner (`src/scanner.c`) rather than trying to model indentation layout in pure LR(1) grammar rules.
+
+**Rationale:** Indentation-sensitive layout in Idris 2 (such as `with` clauses) and column-0 bird tracks in `.lidr` files require stateful column lookahead that exceeds context-free grammar capabilities without exploding ambiguity.
+
+**Consequence:** `src/scanner.c` tracks layout block column state and newline boundaries, providing deterministic layout parsing and clean `.lidr` bird-track stripping while preserving infix symbolic operators.
+
+## D009 — Initial release baseline completion
+
+**Decision:** Finalize the Release 0.0.1 baseline covering Milestones M0–M3 across core `.idr` syntax, `.lidr` literate sources, Tree-sitter editor queries, multi-language bindings (C, Node.js, Rust), and verification against 3 real-world repositories.
+
+**Rationale:** The syntax inventory is stabilized, tested across 27 corpus test suites, verified against real code, and packaged with standard runtime bindings.
+
+**Consequence:** The parser is ready for downstream production usage and Graphify AST extraction.
