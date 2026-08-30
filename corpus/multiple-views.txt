@@ -1,0 +1,173 @@
+================================================================================
+multiple view with clauses
+================================================================================
+module Stage12.MultipleViews
+
+bracedMulti x y with (view1 x) | (view2 y) { bracedMulti x y | True | False = 1; bracedMulti x y | _ | Just z = z; }
+
+layoutMulti x y with (view1 x) | (view2 y)
+  layoutMulti x y | True | False = 1
+  layoutMulti x y | False | True = 2
+  layoutMulti x y | _ | _ = 0
+
+allLengths xs ys with (isNil xs) | (isNil ys)
+  allLengths xs ys | True | True = 0
+  allLengths xs ys | _ | _ = 1
+
+nextDecl : Nat
+nextDecl = 42
+
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (module_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (with_declaration
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      parameter: (pattern
+        (identifier))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        body: (expression
+          (integer)))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (pattern
+          (hole))
+        view_pattern: (constructor_application_pattern
+          constructor: (identifier)
+          argument: (identifier))
+        body: (expression
+          (identifier)))))
+  (declaration
+    (with_declaration
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      parameter: (pattern
+        (identifier))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        body: (expression
+          (integer)))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        body: (expression
+          (integer)))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (pattern
+          (hole))
+        view_pattern: (pattern
+          (hole))
+        body: (expression
+          (integer)))))
+  (declaration
+    (with_declaration
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      parameter: (pattern
+        (identifier))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        body: (expression
+          (integer)))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (pattern
+          (hole))
+        view_pattern: (pattern
+          (hole))
+        body: (expression
+          (integer)))))
+  (declaration
+    (type_signature
+      name: (identifier)
+      type: (type
+        (identifier))))
+  (declaration
+    (function_definition
+      name: (identifier)
+      body: (expression
+        (integer)))))

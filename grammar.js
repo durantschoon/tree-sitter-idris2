@@ -105,6 +105,10 @@ module.exports = grammar({
       repeat(field('parameter', $.pattern)),
       $._with,
       field('view', $.parenthesized_expression),
+      repeat(seq(
+        $._case_bar,
+        field('view', $.parenthesized_expression),
+      )),
       choice(
         seq(
           $._case_open,
@@ -136,6 +140,10 @@ module.exports = grammar({
       repeat(field('parameter', $.pattern)),
       $._with,
       field('view', $.parenthesized_expression),
+      repeat(seq(
+        $._case_bar,
+        field('view', $.parenthesized_expression),
+      )),
       choice(
         seq(
           $._case_open,
@@ -173,11 +181,13 @@ module.exports = grammar({
         ),
         field('refined_parameter', $.pattern),
       ),
-      $._case_bar,
-      field('view_pattern', choice(
-        $.constructor_application_pattern,
-        $.constructor_pattern,
-        $.pattern,
+      repeat1(seq(
+        $._case_bar,
+        field('view_pattern', choice(
+          $.constructor_application_pattern,
+          $.constructor_pattern,
+          $.pattern,
+        )),
       )),
       optional(seq(
         $._equals,
@@ -196,11 +206,13 @@ module.exports = grammar({
         ),
         field('refined_parameter', $.pattern),
       ),
-      $._case_bar,
-      field('view_pattern', choice(
-        $.constructor_application_pattern,
-        $.constructor_pattern,
-        $.pattern,
+      repeat1(seq(
+        $._case_bar,
+        field('view_pattern', choice(
+          $.constructor_application_pattern,
+          $.constructor_pattern,
+          $.pattern,
+        )),
       )),
       $._equals,
       field('body', alias($._with_body_expression, $.expression)),

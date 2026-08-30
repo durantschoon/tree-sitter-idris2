@@ -1114,7 +1114,7 @@
         ]
       },
       "view_pattern": {
-        "multiple": false,
+        "multiple": true,
         "required": true,
         "types": [
           {
@@ -1172,7 +1172,7 @@
         ]
       },
       "view": {
-        "multiple": false,
+        "multiple": true,
         "required": true,
         "types": [
           {

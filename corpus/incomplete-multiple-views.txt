@@ -1,0 +1,56 @@
+================================================================================
+incomplete multiple view with clauses
+================================================================================
+module Stage12.IncompleteMultipleViews
+
+incompleteMulti x y with (view1 x) | (view2 y)
+  incompleteMulti x y | True | False = 1
+  incompleteMulti x y | False | True =
+
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (module_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (with_declaration
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      parameter: (pattern
+        (identifier))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        body: (expression
+          (integer)))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))))))

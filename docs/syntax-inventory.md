@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 11 baseline. This is an inventory for the recoverable grammar
+Status: Stage 12 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -89,6 +89,7 @@ The corpus establishes the following supported constructs:
 | `case value of { Nothing impossible; Just x => x }` | `case_expression` | brace-delimited alternatives use semicolon separators and retain the same ordinary/impossible branch contracts |
 | `check n with (isZero n) { check n | True = 1 }` | `with_declaration` | one named `view`, original `parameter` fields, and repeated `clause` fields |
 | `check n with (isZero n)\n  check n | True = 1` | `with_declaration` | layout-separated clauses retain identical `with_clause` nodes and fields |
+| `check x y with (v1) | (v2)\n  check x y | True | False = 1` | `with_declaration` | multiple view expressions and multiple clause view patterns |
 | `check n | True = 1` inside a with block | `with_clause` | optional repeated `name`/`refined_parameter`, required `view_pattern`, and `body` fields |
 
 The source-file root remains `module` for compatibility with the inherited
@@ -186,9 +187,14 @@ reached. The public tree retains identical `with_declaration` and
 `with_clause` node shapes and fields, preserving the explicit
 brace/semicolon form alongside the layout form. Incomplete layout clauses
 recover gracefully within the `with_declaration` tree without unexpected
-top-level `ERROR` nodes. Layout handling remains strictly bounded to one-view
-`with` declarations; multiple views, nested with blocks, guards, and layout
-for other declaration families remain deferred.
+top-level `ERROR` nodes.
+
+Stage 12 adds multiple-view `with` syntax for both explicit brace/semicolon and
+layout-separated forms. The `with` header accepts one or more `|`-separated
+parenthesized view expressions (e.g. `with (v1) | (v2)`), and each refined
+clause accepts matching `| view_pattern` segments (e.g. `f x y | p1 | p2 = body`).
+Existing single-view forms, AST node shapes (`with_declaration`, `with_clause`),
+and recovery behavior remain identical and fully backward compatible.
 
 ## Naming convention
 
@@ -227,11 +233,11 @@ declaration.
   by the Stage 03 corpus; full layout semantics remain a gap. Operator names
   are currently limited to ASCII symbolic runs and parenthesized forms.
 - Expressions cover the bounded explicit-bar and brace/semicolon `case` forms
-  and the explicit brace/semicolon as well as layout-separated `with` forms
-  described above, but do not cover layout-separated case alternatives, multiple
-  views, or fixity-dependent precedence. Stage 05 supports lambdas and named
-  function patterns only in the bounded forms above; bare constructor patterns
-  are supported only through the case-specific constructor entry point,
+  and the explicit brace/semicolon as well as layout-separated single and
+  multiple-view `with` forms described above, but do not cover layout-separated
+  case alternatives or fixity-dependent precedence. Stage 05 supports lambdas
+  and named function patterns only in the bounded forms above; bare constructor
+  patterns are supported only through the case-specific constructor entry point,
   unparenthesized constructor applications outside case alternatives,
   lower-case constructor spellings, and pattern guards remain gaps. Idris 2
   `impossible_case_alternative` covers `pattern impossible` with explicit bars
