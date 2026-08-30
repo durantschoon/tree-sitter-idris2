@@ -1,4 +1,4 @@
-const { mkdirSync } = require('node:fs');
+const { existsSync, mkdirSync } = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
@@ -24,12 +24,18 @@ if (process.platform === 'darwin' && process.arch === 'x64') {
   );
   mkdirSync(path.dirname(cachePath), { recursive: true });
 
+  const sources = [path.join(process.cwd(), 'src/parser.c')];
+  const scannerPath = path.join(process.cwd(), 'src/scanner.c');
+  if (existsSync(scannerPath)) {
+    sources.push(scannerPath);
+  }
+
   const compile = spawnSync(environment.CC, [
     '-dynamiclib',
     '-fPIC',
     '-O2',
     '-Isrc',
-    path.join(process.cwd(), 'src/parser.c'),
+    ...sources,
     '-o',
     cachePath,
   ], {

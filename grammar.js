@@ -18,8 +18,16 @@ module.exports = grammar({
 
   word: $ => $.identifier,
 
+  externals: $ => [
+    $._with_layout_start,
+    $._with_layout_separator,
+    $._with_layout_end,
+    $._newline,
+  ],
+
   extras: $ => [
-    /\s/,
+    /[ \t\f\r]/,
+    $._newline,
     $.doc_comment,
     $.line_comment,
     $.block_comment,
@@ -97,14 +105,27 @@ module.exports = grammar({
       repeat(field('parameter', $.pattern)),
       $._with,
       field('view', $.parenthesized_expression),
-      $._case_open,
-      field('clause', $.with_clause),
-      repeat(seq(
-        $._case_semicolon,
-        field('clause', $.with_clause),
-      )),
-      optional($._case_semicolon),
-      $._case_close,
+      choice(
+        seq(
+          $._case_open,
+          field('clause', $.with_clause),
+          repeat(seq(
+            $._case_semicolon,
+            field('clause', $.with_clause),
+          )),
+          optional($._case_semicolon),
+          $._case_close,
+        ),
+        seq(
+          $._with_layout_start,
+          field('clause', $.with_clause),
+          repeat(seq(
+            $._with_layout_separator,
+            field('clause', $.with_clause),
+          )),
+          $._with_layout_end,
+        ),
+      ),
     ),
 
     // A missing close is a bounded recovery shape, like the existing braced
@@ -115,14 +136,53 @@ module.exports = grammar({
       repeat(field('parameter', $.pattern)),
       $._with,
       field('view', $.parenthesized_expression),
-      $._case_open,
-      field('clause', $.with_clause),
-      repeat(seq(
-        optional($._case_semicolon),
-        field('clause', $.with_clause),
+      choice(
+        seq(
+          $._case_open,
+          field('clause', $.with_clause),
+          repeat(seq(
+            optional($._case_semicolon),
+            field('clause', $.with_clause),
+          )),
+          optional($._case_semicolon),
+          $._case_close,
+        ),
+        seq(
+          $._with_layout_start,
+          field('clause', choice(
+            $.with_clause,
+            alias($._incomplete_with_clause, $.with_clause),
+          )),
+          repeat(seq(
+            $._with_layout_separator,
+            field('clause', choice(
+              $.with_clause,
+              alias($._incomplete_with_clause, $.with_clause),
+            )),
+          )),
+          optional($._with_layout_end),
+        ),
+      ),
+    )),
+
+    _incomplete_with_clause: $ => prec.right(seq(
+      choice(
+        seq(
+          field('name', choice($.identifier, $.operator_name)),
+          repeat(field('refined_parameter', $.pattern)),
+        ),
+        field('refined_parameter', $.pattern),
+      ),
+      $._case_bar,
+      field('view_pattern', choice(
+        $.constructor_application_pattern,
+        $.constructor_pattern,
+        $.pattern,
       )),
-      optional($._case_semicolon),
-      $._case_close,
+      optional(seq(
+        $._equals,
+        optional(field('body', alias($._with_body_expression, $.expression))),
+      )),
     )),
 
     // The left side may repeat the declaration's name and refined parameter

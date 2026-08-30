@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 10 baseline. This is an inventory for the recoverable grammar
+Status: Stage 11 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -88,6 +88,7 @@ The corpus establishes the following supported constructs:
 | `case value of Nothing impossible | Just x => x` | `case_expression` | `impossible_case_alternative` has a named `pattern` and intentionally no `body` |
 | `case value of { Nothing impossible; Just x => x }` | `case_expression` | brace-delimited alternatives use semicolon separators and retain the same ordinary/impossible branch contracts |
 | `check n with (isZero n) { check n | True = 1 }` | `with_declaration` | one named `view`, original `parameter` fields, and repeated `clause` fields |
+| `check n with (isZero n)\n  check n | True = 1` | `with_declaration` | layout-separated clauses retain identical `with_clause` nodes and fields |
 | `check n | True = 1` inside a with block | `with_clause` | optional repeated `name`/`refined_parameter`, required `view_pattern`, and `body` fields |
 
 The source-file root remains `module` for compatibility with the inherited
@@ -176,16 +177,18 @@ as `body`. Thus declaration parameters cannot be confused with post-bar view
 patterns. Existing pattern atoms are reused syntactically; dependent
 refinement, constructor resolution, and exhaustiveness are not inferred.
 
-The current Idris 2 lexer/parser evidence remains the delimiter/layout
-boundary: `;`, `{`, and `}` are lexical symbols, spaces are removed before
-parsing, explicit brace blocks use `blockEntries AnyIndent`, and layout
-termination uses `column`/`ValidIndent`. The official tutorial's examples
-place with clauses on indented lines, while the documented explicit form here
-uses braces and semicolons only. Consequently this stage does not accept
-indentation-separated clauses, multiple view expressions, nested with blocks,
-guards, or richer dependent/function patterns. A missing closing brace is a
-bounded recovery case and retains the `with_declaration` tree with a missing
-close token rather than an unexpected top-level `ERROR`.
+Stage 11 adds an external scanner for layout-separated one-view `with`
+declarations. Indented refined clauses following the with header are
+delimited by indentation: the first clause establishes the layout column,
+subsequent clauses must match that exact indentation column, and the layout
+block terminates when indentation returns to a shallower column or EOF is
+reached. The public tree retains identical `with_declaration` and
+`with_clause` node shapes and fields, preserving the explicit
+brace/semicolon form alongside the layout form. Incomplete layout clauses
+recover gracefully within the `with_declaration` tree without unexpected
+top-level `ERROR` nodes. Layout handling remains strictly bounded to one-view
+`with` declarations; multiple views, nested with blocks, guards, and layout
+for other declaration families remain deferred.
 
 ## Naming convention
 
@@ -223,12 +226,12 @@ declaration.
   declarations are supported only in the delimiter-based `where` form covered
   by the Stage 03 corpus; full layout semantics remain a gap. Operator names
   are currently limited to ASCII symbolic runs and parenthesized forms.
-- Expressions now cover the bounded explicit-bar and brace/semicolon `case`
-  forms and the explicit brace/semicolon `with` form described above, but do
-  not cover layout-separated alternatives or
-  fixity-dependent precedence. Stage 05 supports lambdas and named function
-  patterns only in the bounded forms above; bare constructor patterns are
-  supported only through the case-specific constructor entry point,
+- Expressions cover the bounded explicit-bar and brace/semicolon `case` forms
+  and the explicit brace/semicolon as well as layout-separated `with` forms
+  described above, but do not cover layout-separated case alternatives, multiple
+  views, or fixity-dependent precedence. Stage 05 supports lambdas and named
+  function patterns only in the bounded forms above; bare constructor patterns
+  are supported only through the case-specific constructor entry point,
   unparenthesized constructor applications outside case alternatives,
   lower-case constructor spellings, and pattern guards remain gaps. Idris 2
   `impossible_case_alternative` covers `pattern impossible` with explicit bars

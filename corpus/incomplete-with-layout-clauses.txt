@@ -1,0 +1,41 @@
+================================================================================
+incomplete layout with clauses
+================================================================================
+module Stage11.IncompleteLayoutWith
+
+incompleteClause n with (isZero n)
+  incompleteClause n | True = 1
+  incompleteClause n | False =
+
+--------------------------------------------------------------------------------
+
+(module
+  (declaration
+    (module_declaration
+      name: (module_name
+        (identifier)
+        (identifier))))
+  (declaration
+    (with_declaration
+      name: (identifier)
+      parameter: (pattern
+        (identifier))
+      view: (parenthesized_expression
+        (expression
+          (application
+            function: (identifier)
+            argument: (identifier))))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))
+        body: (expression
+          (integer)))
+      clause: (with_clause
+        name: (identifier)
+        refined_parameter: (pattern
+          (identifier))
+        view_pattern: (constructor_pattern
+          (identifier))))))
