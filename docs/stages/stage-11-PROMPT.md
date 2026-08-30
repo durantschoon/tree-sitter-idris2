@@ -62,6 +62,7 @@ The executor may create or modify only:
 
 - `docs/syntax-inventory.md`
 - `grammar.js`
+- `scripts/test.js`
 - `src/grammar.json`
 - `src/node-types.json`
 - `src/parser.c`
@@ -139,3 +140,8 @@ coordinator review.
 
   If that managed cache is not writable, use a writable temporary HOME/cache
   and record both the failure and the working remedy.
+
+## Amendments
+
+- **2026-08-30**: Scope expanded to include `scripts/test.js` exclusively to
+  compile and link `src/scanner.c` into the test parser library.
