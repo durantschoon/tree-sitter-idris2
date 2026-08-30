@@ -1,6 +1,6 @@
 # Idris 2 syntax inventory
 
-Status: Stage 13 baseline. This is an inventory for the recoverable grammar
+Status: Stage 14 baseline. This is an inventory for the recoverable grammar
 slice, not a claim of complete Idris 2 coverage.
 
 ## Inspected sources
@@ -204,6 +204,12 @@ stripped as `_bird_track` extras, parsing their enclosed declarations with full
 grammar fidelity including layout blocks and infix operators. Non-code prose
 lines and Markdown headers are captured as `literate_comment` extras. All standard
 `.idr` source files and symbolic `>` operators remain unaffected.
+
+Stage 14 adds Tree-sitter editor queries for syntax highlighting
+(`queries/highlights.scm`), symbol tagging (`queries/tags.scm`), and
+documentation language injections (`queries/injections.scm`). All query
+patterns conform to standard Tree-sitter capture conventions and match valid
+nodes in `src/node-types.json`.
 
 ## Naming convention
 
