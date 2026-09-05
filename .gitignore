@@ -2,5 +2,8 @@ build/
 node_modules/
 .worktrees/
 target/
+*.dylib
+*.so
 .DS_Store
+
 
