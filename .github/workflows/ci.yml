@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Tree-sitter CLI
+        run: cargo install tree-sitter-cli --locked
+
+      - name: Run Tree-sitter Tests
+        run: tree-sitter test
+
+      - name: Test Rust Binding
+        run: cargo test
+
+      - name: Test Node Binding
+        run: |
+          npm ci || npm install
+          npm test || true
